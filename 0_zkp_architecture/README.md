@@ -1,7 +1,5 @@
 # Chapter 1: The Architecture of a Zero-Knowledge Proof System
 
-**Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
-
 **Abstract:** This chapter deconstructs modern Zero-Knowledge Proof (ZKP) systems into their constituent architectural components: Polynomial Interactive Oracle Proofs (PIOPs) and Polynomial Commitment Schemes (PCS). It establishes the formal guarantees of a ZKP and maps the prover's engineering pipeline, from a computational claim to a verifiable proof. The primary objective is to provide a robust framework for analyzing and comparing major ZKP systems like STARKs and SNARKs based on their core technical trade-offs.
 
 **Learning Objectives:** Upon completion of this chapter, you will be able to:
@@ -85,3 +83,5 @@ A key design axis is the type of polynomial used to represent the computation.
 
 -   **Univariate (Course Focus):** These systems use single-variable polynomials, such as `P(x)`. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
 -   **Multivariate:** These systems use polynomials in two or more variables, such as `P(x, y)`. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
+
+**Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
