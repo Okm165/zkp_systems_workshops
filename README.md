@@ -8,11 +8,12 @@ Welcome to a comprehensive course on the theory and practice of modern Zero-Know
 
 The course is structured as a series of chapters, each building on the last.
 
-*   ### [Chapter 1: The Architecture of a Zero-Knowledge Proof System](./0_zkp_architecture/README.md)
-    *   **Description:** This chapter introduces the "big picture" of a modern ZKP system. We define the axiomatic guarantees of a proof system (Completeness, Soundness, Zero-Knowledge) and present the powerful architectural framework that separates the logic layer (PIOPs) from the cryptographic layer (PCSs).
+- ### [Chapter 1: The Architecture of a Zero-Knowledge Proof System](./0_zkp_architecture/README.md)
 
-*   ### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](./1_mathematical_toolkit/README.md)
-    *   **Description:** Here, we establish the three mathematical pillars of ZKPs: Finite Fields for perfect arithmetic, Polynomials for encoding computational logic (Arithmetization), and Cryptographic Hash Functions for building transparent and non-interactive systems.
+  - **Description:** This chapter introduces the "big picture" of a modern ZKP system. We define the axiomatic guarantees of a proof system (Completeness, Soundness, Zero-Knowledge) and present the powerful architectural framework that separates the logic layer (PIOPs) from the cryptographic layer (PCSs).
+
+- ### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](./1_mathematical_toolkit/README.md)
+  - **Description:** Here, we establish the three mathematical pillars of ZKPs: Finite Fields for perfect arithmetic, Polynomials for encoding computational logic (Arithmetization), and Cryptographic Hash Functions for building transparent and non-interactive systems.
 
 ---
 

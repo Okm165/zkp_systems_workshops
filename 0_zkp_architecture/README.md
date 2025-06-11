@@ -41,19 +41,19 @@ The "compiler" framework consists of two primary components.
 
 #### The "Logic Layer": Polynomial IOPs (PIOPs)
 
--   **Definition:** A PIOP is an interactive protocol where a Prover convinces a Verifier of a statement by sending **polynomial oracles**. The Verifier probabilistically checks these oracles by making queries at randomly chosen points.
--   **Purpose:** To reduce a complex computational claim (e.g., "This AIR is satisfiable") into a simpler, probabilistic claim about the low-degreeness of certain polynomials.
--   **Security Basis:** **Information-Theoretic Soundness.** Security is derived from the algebraic properties of low-degree polynomials (e.g., the **Schwartz-Zippel Lemma**) and probability theory, not cryptographic assumptions.
+- **Definition:** A PIOP is an interactive protocol where a Prover convinces a Verifier of a statement by sending **polynomial oracles**. The Verifier probabilistically checks these oracles by making queries at randomly chosen points.
+- **Purpose:** To reduce a complex computational claim (e.g., "This AIR is satisfiable") into a simpler, probabilistic claim about the low-degreeness of certain polynomials.
+- **Security Basis:** **Information-Theoretic Soundness.** Security is derived from the algebraic properties of low-degree polynomials (e.g., the **Schwartz-Zippel Lemma**) and probability theory, not cryptographic assumptions.
 
 #### The "Cryptographic Layer": Polynomial Commitment Schemes (PCS)
 
--   **Definition:** A PCS is a cryptographic primitive that allows a Prover to commit to a polynomial `P(x)` and later prove an evaluation `P(z) = y` without revealing `P(x)`.
--   **Core Steps:** `Setup(params)`, `Commit(P)`, `Open(P, z)`, `VerifyEval(C, z, y, π)`.
--   **Security Basis:** **Computational Hardness.** Security properties like **binding** (the inability to change the polynomial after commitment) and **hiding** (the inability to see the polynomial from the commitment) are derived from computationally hard problems, such as the Discrete Log Problem (DLP) or the collision-resistance of hash functions.
+- **Definition:** A PCS is a cryptographic primitive that allows a Prover to commit to a polynomial `P(x)` and later prove an evaluation `P(z) = y` without revealing `P(x)`.
+- **Core Steps:** `Setup(params)`, `Commit(P)`, `Open(P, z)`, `VerifyEval(C, z, y, π)`.
+- **Security Basis:** **Computational Hardness.** Security properties like **binding** (the inability to change the polynomial after commitment) and **hiding** (the inability to see the polynomial from the commitment) are derived from computationally hard problems, such as the Discrete Log Problem (DLP) or the collision-resistance of hash functions.
 
 ---
 
-## Part 3: The Landscape, Trade-offs, and Course Roadmap
+## Part 3: The Landscape and Trade-offs
 
 #### The PCS Family: A Spectrum of Trade-offs
 
@@ -72,16 +72,16 @@ Combining a PIOP with a PCS yields a complete ZKP system. This table provides a 
 | Scheme      | PIOP / Arithmetization     | PCS           | Trust Model                    | Proof Size $O(\cdot)$ | Quantum?          |
 | :---------- | :------------------------- | :------------ | :----------------------------- | :-------------------- | :---------------- |
 | **Groth16** | R1CS                       | Pairing-based | Circuit-Specific Trusted Setup | Constant              | No                |
-| **Plonk** | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | Constant              | No                |
-| **STARK** | AIR                        | FRI           | Transparent                    | $O(\log^2 N)$         | Yes (conjectured) |
-| **Halo2** | UltraPLONK (Lookups)       | IPA           | Transparent                    | $O(\log N)$           | No (default)      |
+| **Plonk**   | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | Constant              | No                |
+| **STARK**   | AIR                        | FRI           | Transparent                    | $O(\log^2 N)$         | Yes (conjectured) |
+| **Halo2**   | UltraPLONK (Lookups)       | IPA           | Transparent                    | $O(\log N)$           | No (default)      |
 | **Plonky2** | Plonk-style                | FRI           | Transparent                    | $O(\log^2 N)$         | Yes (conjectured) |
 
 #### Advanced Design: Univariate vs. Multivariate Systems
 
 A key design axis is the type of polynomial used to represent the computation.
 
--   **Univariate (Course Focus):** These systems use single-variable polynomials, such as `P(x)`. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
--   **Multivariate:** These systems use polynomials in two or more variables, such as `P(x, y)`. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
+- **Univariate (Course Focus):** These systems use single-variable polynomials, such as `P(x)`. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
+- **Multivariate:** These systems use polynomials in two or more variables, such as `P(x, y)`. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
 
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
