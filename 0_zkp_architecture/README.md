@@ -17,15 +17,15 @@
 
 The central problem that ZKP systems aim to solve can be stated formally.
 
-**Formal Statement:** "Given a public relation `R`, how can a **Prover** convince a **Verifier** of the truth of a statement `(x, w) ∈ R` (where `x` is the public instance and `w` is the secret witness), without the Verifier needing to re-execute the computation defined by `R`?"
+**Formal Statement:** "Given a public relation $`R`$, how can a **Prover** convince a **Verifier** of the truth of a statement $`(x, w) \in R`$ (where $`x`$ is the public instance and $`w`$ is the secret witness), without the Verifier needing to re-execute the computation defined by $`R`$?"
 
 #### The Three Axioms of a Proof System
 
 Any valid Zero-Knowledge Proof system must satisfy three formal properties:
 
-1.  **Completeness:** If the statement is true (`(x, w) ∈ R`), an honest Prover with witness `w` can always produce a proof `π` that an honest Verifier accepts.
-2.  **Soundness:** If the statement is false (`(x, w) ∉ R`), **no** computationally bounded, cheating Prover can produce a proof `π` that the Verifier accepts, except with a negligible probability `ε` (the soundness error).
-3.  **Zero-Knowledge:** The proof `π` reveals **no** information about the secret witness `w`. Formally, for any Verifier, there exists an efficient **Simulator** that, given only the public statement `x`, can generate a transcript indistinguishable from a real proof interaction.
+1.  **Completeness:** If the statement is true ($`(x, w) \in R`$), an honest Prover with witness $`w`$ can always produce a proof $`\pi`$ that an honest Verifier accepts.
+2.  **Soundness:** If the statement is false ($`(x, w) \notin R`$), **no** computationally bounded, cheating Prover can produce a proof $`\pi`$ that the Verifier accepts, except with a negligible probability $`\varepsilon`$ (the soundness error).
+3.  **Zero-Knowledge:** The proof $`\pi`$ reveals **no** information about the secret witness $`w`$. Formally, for any Verifier, there exists an efficient **Simulator** that, given only the public statement $`x`$, can generate a transcript indistinguishable from a real proof interaction.
 
 #### The Modern ZKP "Compiler" Framework
 
@@ -47,8 +47,8 @@ The "compiler" framework consists of two primary components.
 
 #### The "Cryptographic Layer": Polynomial Commitment Schemes (PCS)
 
-- **Definition:** A PCS is a cryptographic primitive that allows a Prover to commit to a polynomial `P(x)` and later prove an evaluation `P(z) = y` without revealing `P(x)`.
-- **Core Steps:** `Setup(params)`, `Commit(P)`, `Open(P, z)`, `VerifyEval(C, z, y, π)`.
+- **Definition:** A PCS is a cryptographic primitive that allows a Prover to commit to a polynomial $`P(x)`$ and later prove an evaluation $`P(z) = y`$ without revealing $`P(x)`$.
+- **Core Steps:** $`\text{Setup}(\text{params})`$, $`\text{Commit}(P)`$, $`\text{Open}(P, z)`$, $`\text{VerifyEval}(C, z, y, \pi)`$.
 - **Security Basis:** **Computational Hardness.** Security properties like **binding** (the inability to change the polynomial after commitment) and **hiding** (the inability to see the polynomial from the commitment) are derived from computationally hard problems, such as the Discrete Log Problem (DLP) or the collision-resistance of hash functions.
 
 ---
@@ -61,27 +61,27 @@ The choice of PCS is a critical design decision that dictates a system's core pr
 
 | PCS     | Basis                             | Trust Model               | Advantages                              | Disadvantages                            |
 | :------ | :-------------------------------- | :------------------------ | :-------------------------------------- | :--------------------------------------- |
-| **KZG** | ECC Pairings (t-SDH)              | Trusted Setup (Universal) | Constant Size Proofs, Fast Verification | Not PQ-Secure, Requires Setup Ceremony   |
+| **KZG** | ECC Pairings ($`t\text{-SDH}`$)    | Trusted Setup (Universal) | Constant Size Proofs, Fast Verification | Not PQ-Secure, Requires Setup Ceremony   |
 | **FRI** | Hash Functions (Collision-Resist) | Transparent               | PQ-Secure, Minimal Assumptions          | Larger Proofs, Slower Verifier           |
 | **IPA** | ECC (Discrete Log)                | Transparent               | Transparent, Small Log-Size Proofs      | Slower Verifier, Not PQ-Secure (default) |
 
-#### System Analysis: PIOP + PCS = ZKP
+#### System Analysis: $`\text{PIOP} + \text{PCS} = \text{ZKP}`$
 
 Combining a PIOP with a PCS yields a complete ZKP system. This table provides a high-level comparison of prominent ZKP systems based on their architectural choices.
 
-| Scheme      | PIOP / Arithmetization     | PCS           | Trust Model                    | Proof Size $O(\cdot)$ | Quantum?          |
+| Scheme      | PIOP / Arithmetization     | PCS           | Trust Model                    | Proof Size $`O(\cdot)`$ | Quantum?          |
 | :---------- | :------------------------- | :------------ | :----------------------------- | :-------------------- | :---------------- |
-| **Groth16** | R1CS                       | Pairing-based | Circuit-Specific Trusted Setup | Constant              | No                |
-| **Plonk**   | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | Constant              | No                |
-| **STARK**   | AIR                        | FRI           | Transparent                    | $O(\log^2 N)$         | Yes (conjectured) |
-| **Halo2**   | UltraPLONK (Lookups)       | IPA           | Transparent                    | $O(\log N)$           | No (default)      |
-| **Plonky2** | Plonk-style                | FRI           | Transparent                    | $O(\log^2 N)$         | Yes (conjectured) |
+| **Groth16** | R1CS                       | Pairing-based | Circuit-Specific Trusted Setup | $`O(1)`$              | No                |
+| **Plonk**   | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | $`O(1)`$              | No                |
+| **STARK**   | AIR                        | FRI           | Transparent                    | $`O(\log^2 N)`$       | Yes (conjectured) |
+| **Halo2**   | UltraPLONK (Lookups)       | IPA           | Transparent                    | $`O(\log N)`$         | No (default)      |
+| **Plonky2** | Plonk-style                | FRI           | Transparent                    | $`O(\log^2 N)`$       | Yes (conjectured) |
 
 #### Advanced Design: Univariate vs. Multivariate Systems
 
 A key design axis is the type of polynomial used to represent the computation.
 
-- **Univariate (Course Focus):** These systems use single-variable polynomials, such as `P(x)`. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
-- **Multivariate:** These systems use polynomials in two or more variables, such as `P(x, y)`. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
+- **Univariate (Course Focus):** These systems use single-variable polynomials, such as $`P(x)`$. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
+- **Multivariate:** These systems use polynomials in two or more variables, such as $`P(x, y)`$. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
 
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
