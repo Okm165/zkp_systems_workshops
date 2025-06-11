@@ -74,7 +74,7 @@ The prover's task is to convince the verifier that such a low-degree polynomial 
 
 The security of this approach relies on the algebraic rigidity of low-degree polynomials, formalized by the **Fundamental Theorem of Algebra**: a non-zero univariate polynomial of degree `d` has at most `d` roots. The **Schwartz-Zippel Lemma** extends this idea to multivariate polynomials and provides a powerful tool for probabilistic checking.
 
-> **The Lemma (Formal):** Let $`P(x_1, ..., x_m)`$ be a non-zero multivariate polynomial of total degree `d` over a field `F`. Let `S` be a finite, non-empty subset of `F`. If values $`r_1, ..., r_m`$ are chosen independently and uniformly at random from `S`, then: $$ \text{Pr}[P(r_1, ..., r_m) = 0] \le \frac{d}{|S|} $$
+> **The Lemma (Formal):** Let $`P(x_1, ..., x_m)`$ be a non-zero multivariate polynomial of total degree `d` over a field `F`. Let `S` be a finite, non-empty subset of `F`. If values $`r_1, ..., r_m`$ are chosen independently and uniformly at random from `S`, then: $`\text{Pr}[P(r_1, ..., r_m) = 0] \le \frac{d}{|S|}`$
 
 This lemma allows a Verifier to check a Prover's claim that a large, complex constraint polynomial is identically zero. Instead of evaluating it everywhere, the Verifier requests an evaluation at a single random point. If the result is zero, the Verifier can be highly confident that the polynomial is the zero polynomial everywhere, as the probability of accidentally hitting a root of a non-zero polynomial is negligibly small in a large field.
 
