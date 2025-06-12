@@ -86,7 +86,7 @@ A key design axis is the type of polynomial used to represent the computation.
 
 ---
 
-### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](./1_mathematical_toolkit/README.md)
+### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](../1_mathematical_toolkit/README.md)
 
 ---
 
