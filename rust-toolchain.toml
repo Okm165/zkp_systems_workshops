@@ -1,0 +1,11 @@
+# Specifies the Rust toolchain configuration for the project.
+[toolchain]
+
+# Sets the toolchain to the stable release channel.
+# This ensures that builds are reproducible and use the latest stable version of Rust.
+channel = "stable"
+
+# Lists the components to be installed with the toolchain.
+# "rustfmt" is the standard Rust code formatter. Including it here ensures
+# that all developers have it available for consistent code styling.
+components = ["rustfmt"]

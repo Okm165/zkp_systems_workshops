@@ -1,8 +1,7 @@
 [package]
-name = "mathematical_toolkit"
+name = "zkp_architecture"
 edition.workspace = true
 version.workspace = true
 readme = "README.md"
 
 [dependencies]
-proptest = "1.7.0"

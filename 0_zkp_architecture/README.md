@@ -61,7 +61,7 @@ The choice of PCS is a critical design decision that dictates a system's core pr
 
 | PCS     | Basis                             | Trust Model               | Advantages                              | Disadvantages                            |
 | :------ | :-------------------------------- | :------------------------ | :-------------------------------------- | :--------------------------------------- |
-| **KZG** | ECC Pairings ($`t\text{-SDH}`$)    | Trusted Setup (Universal) | Constant Size Proofs, Fast Verification | Not PQ-Secure, Requires Setup Ceremony   |
+| **KZG** | ECC Pairings ($`t\text{-SDH}`$)   | Trusted Setup (Universal) | Constant Size Proofs, Fast Verification | Not PQ-Secure, Requires Setup Ceremony   |
 | **FRI** | Hash Functions (Collision-Resist) | Transparent               | PQ-Secure, Minimal Assumptions          | Larger Proofs, Slower Verifier           |
 | **IPA** | ECC (Discrete Log)                | Transparent               | Transparent, Small Log-Size Proofs      | Slower Verifier, Not PQ-Secure (default) |
 
@@ -70,12 +70,12 @@ The choice of PCS is a critical design decision that dictates a system's core pr
 Combining a PIOP with a PCS yields a complete ZKP system. This table provides a high-level comparison of prominent ZKP systems based on their architectural choices.
 
 | Scheme      | PIOP / Arithmetization     | PCS           | Trust Model                    | Proof Size $`O(\cdot)`$ | Quantum?          |
-| :---------- | :------------------------- | :------------ | :----------------------------- | :-------------------- | :---------------- |
-| **Groth16** | R1CS                       | Pairing-based | Circuit-Specific Trusted Setup | $`O(1)`$              | No                |
-| **Plonk**   | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | $`O(1)`$              | No                |
-| **STARK**   | AIR                        | FRI           | Transparent                    | $`O(\log^2 N)`$       | Yes (conjectured) |
-| **Halo2**   | UltraPLONK (Lookups)       | IPA           | Transparent                    | $`O(\log N)`$         | No (default)      |
-| **Plonky2** | Plonk-style                | FRI           | Transparent                    | $`O(\log^2 N)`$       | Yes (conjectured) |
+| :---------- | :------------------------- | :------------ | :----------------------------- | :---------------------- | :---------------- |
+| **Groth16** | R1CS                       | Pairing-based | Circuit-Specific Trusted Setup | $`O(1)`$                | No                |
+| **Plonk**   | Plonk-style (Custom Gates) | KZG           | Universal Trusted Setup        | $`O(1)`$                | No                |
+| **STARK**   | AIR                        | FRI           | Transparent                    | $`O(\log^2 N)`$         | Yes (conjectured) |
+| **Halo2**   | UltraPLONK (Lookups)       | IPA           | Transparent                    | $`O(\log N)`$           | No (default)      |
+| **Plonky2** | Plonk-style                | FRI           | Transparent                    | $`O(\log^2 N)`$         | Yes (conjectured) |
 
 #### Advanced Design: Univariate vs. Multivariate Systems
 
@@ -83,5 +83,11 @@ A key design axis is the type of polynomial used to represent the computation.
 
 - **Univariate (Course Focus):** These systems use single-variable polynomials, such as $`P(x)`$. This approach involves "flattening" the execution trace into single columns of data. **Examples:** Classic STARK, Plonk, Marlin.
 - **Multivariate:** These systems use polynomials in two or more variables, such as $`P(x, y)`$. This can offer a more natural or efficient representation for certain computational structures. **Examples:** HyperPlonk, Plonky2/Plonky3, and CircleSTARK.
+
+---
+
+### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](./1_mathematical_toolkit/README.md)
+
+---
 
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
