@@ -1,8 +1,4 @@
-Of course. Here is the complete, refined chapter formatted in GitHub-flavored Markdown with clear, student-focused rephrasing and appropriate math syntax.
-
----
-
-# Chapter 4: The Fast Fourier Transform for Polynomial Multiplication
+# Chapter 2: The Fast Fourier Transform for Polynomial Multiplication
 
 ### Abstract
 
