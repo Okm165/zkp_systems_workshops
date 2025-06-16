@@ -1,4 +1,4 @@
-# Chapter 2: The Mathematical Toolkit for Verifiable Computation
+# Chapter 1: The Mathematical Toolkit for Verifiable Computation
 
 **Abstract:** This chapter establishes the three mathematical pillars upon which modern ZKP systems are built: Finite Fields, which provide a domain for perfect and deterministic arithmetic; Polynomials, which serve as a universal language for encoding computational logic through a process called arithmetization; and Cryptographic Hash Functions, which provide the primitives for binding commitments and generating public randomness. The chapter explains how the algebraic properties of these tools, particularly the Schwartz-Zippel Lemma, enable efficient, probabilistic verification and form the foundation for transparent and secure proof systems.
 
@@ -106,5 +106,11 @@ Hash functions serve two critical roles in modern ZKPs like STARKs:
 1.  **Building Transparent Commitments (Merkle Trees):** The FRI protocol uses hash functions to build Merkle Trees. By hashing polynomial evaluation data and then recursively hashing the resulting digests, the Prover produces a single root hash. This hash serves as a binding commitment to the entire set of evaluations. This approach is **transparent** because it relies only on the public hash function and requires no trusted setup or secret parameters. Its security against quantum computers is conjectured to be strong, as breaking it requires finding collisions, a problem for which quantum algorithms offer only a polynomial speedup.
 
 2.  **Achieving Non-Interactivity (The Fiat-Shamir Heuristic):** Interactive proofs require a Verifier to provide random challenges. To create a non-interactive proof that can be publicly verified, the **Fiat-Shamir heuristic** replaces the Verifier with a hash function. The Prover generates challenges by hashing the public transcript of the proof up to that point: $`c = H(\text{public\_inputs} \mathbin{\|} \text{prover\_message\_1} \mathbin{\|} \dots)`$. In the security analysis, the hash function is modeled as a **Random Oracle**—a perfect, unpredictable source of randomness that the Prover cannot manipulate to generate favorable challenges.
+
+---
+
+### [Chapter 2: The Fast Fourier Transform for Polynomial Multiplication](../2_fast_polynomial_arithmetic/README.md)
+
+---
 
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
