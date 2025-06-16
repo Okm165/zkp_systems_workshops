@@ -100,24 +100,27 @@ When evaluating $`A(x)`$ at the $`n`$-th roots of unity, $`\omega_n^k`$, the Hal
 >
 > 1.  **Evaluate at $`x = \omega_n^k`$:**
 >
->     ```math
->     y[k] = A(\omega_n^k) = A_{\text{even}}((\omega_n^k)^2) + \omega_n^k \cdot A_{\text{odd}}((\omega_n^k)^2)
->     ```
+> ```math
+> y[k] = A(\omega_n^k) = A_{\text{even}}((\omega_n^k)^2) + \omega_n^k \cdot A_{\text{odd}}((\omega_n^k)^2)
+> ```
 >
->     By the Halving Lemma, $`(\omega_n^k)^2 = \omega_{n/2}^k`$. Substituting the results from the recursive calls:
+> By the Halving Lemma, $`(\omega_n^k)^2 = \omega_{n/2}^k`$. Substituting the results from the recursive calls:
 >
->     ```math
->     y[k] = y_{\text{even}}[k] + \omega_n^k \cdot y_{\text{odd}}[k]
->     ```
+> ```math
+> y[k] = y_{\text{even}}[k] + \omega_n^k \cdot y_{\text{odd}}[k]
+> ```
 >
 > 2.  **Evaluate at $`x = \omega_n^{k+n/2}`$:**
->     ```math
->     y[k+n/2] = A(\omega_n^{k+n/2}) = A_{\text{even}}((\omega_n^{k+n/2})^2) + \omega_n^{k+n/2} \cdot A_{\text{odd}}((\omega_n^{k+n/2})^2)
->     ```
->     The Halving Lemma also gives $`(\omega_n^{k+n/2})^2 = \omega_{n/2}^k`$. And we know $`\omega_n^{k+n/2} = \omega_n^k \cdot \omega_n^{n/2} = -\omega_n^k`$. Substituting:
->     ```math
->     y[k+n/2] = y_{\text{even}}[k] - \omega_n^k \cdot y_{\text{odd}}[k]
->     ```
+>
+> ```math
+> y[k+n/2] = A(\omega_n^{k+n/2}) = A_{\text{even}}((\omega_n^{k+n/2})^2) + \omega_n^{k+n/2} \cdot A_{\text{odd}}((\omega_n^{k+n/2})^2)
+> ```
+>
+> The Halving Lemma also gives $`(\omega_n^{k+n/2})^2 = \omega_{n/2}^k`$. And we know $`\omega_n^{k+n/2} = \omega_n^k \cdot \omega_n^{n/2} = -\omega_n^k`$. Substituting:
+>
+> ```math
+> y[k+n/2] = y_{\text{even}}[k] - \omega_n^k \cdot y_{\text{odd}}[k]
+> ```
 >
 > The algorithm produces two distinct outputs because a single pair of subproblem results, $`y_{\text{even}}[k]`$ and $`y_{\text{odd}}[k]`$, contains all the information needed to compute the final DFT at two different output indices, $`k`$ and $`k+n/2`$. This two-for-one computation is the source of the FFT's efficiency. The twiddle factor $`\omega_n^k`$ is applied only to the odd branch because it arises from the explicit $`x`$ multiplier in the decomposition $`A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)`$. The $`A_{\text{even}}`$ term is a function of $`x^2`$ only and is thus "left untouched," while the $`A_{\text{odd}}`$ term is scaled by $`x`$, which becomes $`\omega_n^k`$ upon evaluation. Swapping this choice would violate the algebraic identity.
 
