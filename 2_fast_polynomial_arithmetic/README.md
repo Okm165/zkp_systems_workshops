@@ -22,11 +22,15 @@ The efficiency of algorithms is intrinsically linked to the underlying represent
 
 A univariate polynomial $`A(x)`$ of degree-bound $`n`$ is conventionally defined by a vector of $`n`$ coefficients, $`a = (a_0, a_1, \dots, a_{n-1})`$, in the standard monomial basis:
 
-$`A(x) = \sum_{j=0}^{n-1} a_j x^j`$
+```math
+A(x) = \sum_{j=0}^{n-1} a_j x^j
+```
 
 In this basis, adding two polynomials $`A(x)`$ and $`B(x)`$ is a component-wise vector addition of their coefficient vectors, a $`\Theta(n)`$ operation. However, multiplying them to get $`C(x) = A(x) \cdot B(x)`$ yields a polynomial whose coefficients are determined by the **convolution** of the input coefficient vectors, denoted $`c = a * b`$:
 
-$`c_k = \sum_{j=0}^{k} a_j b_{k-j}`$
+```math
+c_k = \sum_{j=0}^{k} a_j b_{k-j}
+```
 
 #### The Point-Value Representation
 
@@ -64,7 +68,9 @@ The matrix $`V`$, whose entries are $`V_{jk} = x_j^k`$, is a **Vandermonde matri
 
 The requisite structure is found by choosing the evaluation points to be the **n-th complex roots of unity**. An $`n`$-th root of unity is a complex number $`\omega`$ satisfying $`\omega^n = 1`$. The $`n`$ distinct roots are given by:
 
-$`\omega_n^k = e^{2\pi i k / n} \quad \text{for } k = 0, 1, \dots, n-1`$
+```math
+\omega_n^k = e^{2\pi i k / n} \quad \text{for } k = 0, 1, \dots, n-1
+```
 
 These roots form a cyclic group under multiplication and exhibit properties essential for an efficient recursive algorithm, most notably the Halving Lemma.
 
@@ -82,7 +88,9 @@ When the evaluation points are the $`n`$-th roots of unity, the Vandermonde matr
 
 The canonical FFT algorithm, attributed to Cooley and Tukey, employs a divide-and-conquer strategy. Assuming $`n`$ is a power of 2, a polynomial $`A(x)`$ is decomposed based on the parity of its coefficient indices into $`A_{\text{even}}(y)`$ and $`A_{\text{odd}}(y)`$, where $`y=x^2`$:
 
-$`A(x) = A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)`$
+```math
+A(x) = A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)
+```
 
 When evaluating $`A(x)`$ at the $`n`$-th roots of unity, $`\omega_n^k`$, the Halving Lemma ensures that $`A_{\text{even}}`$ and $`A_{\text{odd}}`$ need only be evaluated at $`(\omega_n^k)^2 = \omega_{n/2}^k`$. This reduces a problem of size $`n`$ to two subproblems of size $`n/2`$. The recurrence relation for this process is $`T(n) = 2T(n/2) + \Theta(n)`$, which, by the Master Theorem, solves to a running time of **$`\Theta(n \log n)`$**. The recursive combination step forms the heart of the algorithm.
 
