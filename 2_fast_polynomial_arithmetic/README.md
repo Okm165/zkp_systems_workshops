@@ -1,6 +1,6 @@
-# Chapter 3: The Fast Fourier Transform for Polynomial Multiplication
+# Chapter 2: The Fast Fourier Transform for Polynomial Multiplication
 
-**Abstract:** This chapter provides a introduction of the Fast Fourier Transform (FFT) as a high-performance algorithm for polynomial multiplication. We begin by examining the computational complexity of polynomial operations within their standard coefficient-basis representation, identifying the $`\Theta(n^2)`$ complexity of convolution as a significant bottleneck. An alternative, the point-value representation, is introduced, which reduces multiplication to a linear-time operation.
+**Abstract:** This chapter provides an introduction to the Fast Fourier Transform (FFT) as a high-performance algorithm for polynomial multiplication. We begin by examining the computational complexity of polynomial operations within their standard coefficient-basis representation, identifying the $`\Theta(n^2)`$ complexity of convolution as a significant bottleneck. An alternative, the point-value representation, is introduced, which reduces multiplication to a linear-time operation.
 
 The core of this chapter frames the FFT as an efficient algorithm for mediating a change of basis between the coefficient and point-value domains. This is achieved by selecting a specific set of evaluation points, the complex roots of unity, which imbue the transformation matrix with a recursive structure. We formally derive the Cooley-Tukey radix-2 FFT algorithm, analyzing its $`\Theta(n \log n)`$ complexity via its divide-and-conquer structure. We then deconstruct the mechanics of its iterative implementation, elucidating the necessity of the butterfly operation and the bit-reversal permutation as direct consequences of the recursive algorithm's data flow, answering key questions about their structure and implementation. Finally, we prove that the inverse transform, necessary for interpolation, possesses a structure nearly identical to the forward transform, allowing for its computation with the same algorithmic efficiency.
 
@@ -98,13 +98,26 @@ When evaluating $`A(x)`$ at the $`n`$-th roots of unity, $`\omega_n^k`$, the Hal
 >
 > The two-output shape of the butterfly is not arbitrary; it is a direct result of evaluating our core identity $`A(x) = A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)`$ at two specific points, $`\omega_n^k`$ and $`\omega_n^{k+n/2}`$, which share the same square. Let $`y_{\text{even}}[k]`$ be the result of evaluating $`A_{\text{even}}`$ at $`\omega_{n/2}^k`$, and $`y_{\text{odd}}[k]`$ be the result for $`A_{\text{odd}}`$.
 >
-> 1.  **Evaluate at $`x = \omega_n^k`$:** > $`y[k] = A(\omega_n^k) = A_{\text{even}}((\omega_n^k)^2) + \omega_n^k \cdot A_{\text{odd}}((\omega_n^k)^2)`$
->     By the Halving Lemma, $`(\omega_n^k)^2 = \omega_{n/2}^k`$. Substituting the results from the recursive calls:
->     $`y[k] = y_{\text{even}}[k] + \omega_n^k \cdot y_{\text{odd}}[k]`$
+> 1.  **Evaluate at $`x = \omega_n^k`$:**
 >
-> 2.  **Evaluate at $`x = \omega_n^{k+n/2}`$:** > $`y[k+n/2] = A(\omega_n^{k+n/2}) = A_{\text{even}}((\omega_n^{k+n/2})^2) + \omega_n^{k+n/2} \cdot A_{\text{odd}}((\omega_n^{k+n/2})^2)`$
+>     ```math
+>     y[k] = A(\omega_n^k) = A_{\text{even}}((\omega_n^k)^2) + \omega_n^k \cdot A_{\text{odd}}((\omega_n^k)^2)
+>     ```
+>
+>     By the Halving Lemma, $`(\omega_n^k)^2 = \omega_{n/2}^k`$. Substituting the results from the recursive calls:
+>
+>     ```math
+>     y[k] = y_{\text{even}}[k] + \omega_n^k \cdot y_{\text{odd}}[k]
+>     ```
+>
+> 2.  **Evaluate at $`x = \omega_n^{k+n/2}`$:**
+>     ```math
+>     y[k+n/2] = A(\omega_n^{k+n/2}) = A_{\text{even}}((\omega_n^{k+n/2})^2) + \omega_n^{k+n/2} \cdot A_{\text{odd}}((\omega_n^{k+n/2})^2)
+>     ```
 >     The Halving Lemma also gives $`(\omega_n^{k+n/2})^2 = \omega_{n/2}^k`$. And we know $`\omega_n^{k+n/2} = \omega_n^k \cdot \omega_n^{n/2} = -\omega_n^k`$. Substituting:
->     $`y[k+n/2] = y_{\text{even}}[k] - \omega_n^k \cdot y_{\text{odd}}[k]`$
+>     ```math
+>     y[k+n/2] = y_{\text{even}}[k] - \omega_n^k \cdot y_{\text{odd}}[k]
+>     ```
 >
 > The algorithm produces two distinct outputs because a single pair of subproblem results, $`y_{\text{even}}[k]`$ and $`y_{\text{odd}}[k]`$, contains all the information needed to compute the final DFT at two different output indices, $`k`$ and $`k+n/2`$. This two-for-one computation is the source of the FFT's efficiency. The twiddle factor $`\omega_n^k`$ is applied only to the odd branch because it arises from the explicit $`x`$ multiplier in the decomposition $`A_{\text{even}}(x^2) + x \cdot A_{\text{odd}}(x^2)`$. The $`A_{\text{even}}`$ term is a function of $`x^2`$ only and is thus "left untouched," while the $`A_{\text{odd}}`$ term is scaled by $`x`$, which becomes $`\omega_n^k`$ upon evaluation. Swapping this choice would violate the algebraic identity.
 
@@ -131,7 +144,8 @@ The butterfly is the atomic computational unit of the iterative FFT. An $`n`$-po
 > - The butterfly starting at index $`i=2`$ combines `array[2]` and `array[6]` using $`\omega_8^2`$.
 > - The butterfly starting at index $`i=3`$ combines `array[3]` and `array[7]` using $`\omega_8^3`$.
 > - The butterfly starting at index $`i=8`$ combines `array[8]` and `array[12]` using $`\omega_8^0`$.
->   The pattern repeats for the next block. The exponent $`m`$ for the twiddle factor $`\omega_{2^s}^m`$ applied to the pair starting at index $`i`$ is simply $`m = i \pmod{2^{s-1}}`$.
+>
+> The pattern repeats for the next block. The exponent $`m`$ for the twiddle factor $`\omega_{2^s}^m`$ applied to the pair starting at index $`i`$ is simply $`m = i \pmod{2^{s-1}}`$.
 
 #### The Bit-Reversal Permutation
 
@@ -154,14 +168,25 @@ The final step, converting the point-value product back to coefficients, require
 The inverse of the DFT matrix $`F_n`$ possesses a highly structured form, a direct consequence of the orthogonality of the roots of unity.
 
 > **Theorem: The Inverse DFT Matrix**
-> The inverse of the DFT matrix $`F_n`$ is given by $`(F_n^{-1})_{jk} = \frac{1}{n} \cdot \omega_n^{-jk}`$.
+> The inverse of the DFT matrix $`F_n`$ is given by:
 >
-> _Proof:_ Let $`P = F_n \cdot F'_n`$, where $`(F'_n)_{jk} = \omega_n^{-jk}`$. The entry $`P_{jk}`$ is $`\sum_{m=0}^{n-1} \omega_n^{jm} \cdot \omega_n^{-mk} = \sum_{m=0}^{n-1} (\omega_n^{j-k})^m`$.
+> ```math
+> (F_n^{-1})_{jk} = \frac{1}{n} \cdot \omega_n^{-jk}
+> ```
 >
-> 1.  **If $`j = k`$ (on-diagonal):** The term is $`(\omega_n^0)^m = 1^m = 1`$. The sum is $`n`$.
-> 2.  **If $`j \neq k`$ (off-diagonal):** This is a finite geometric series with ratio $`z = \omega_n^{j-k} \neq 1`$. The sum is $`(z^n - 1)/(z - 1)`$. The numerator is $`(\omega_n^{j-k})^n = (\omega_n^n)^{j-k} = 1^{j-k} = 1`$. Thus, the sum is $`(1-1)/(z-1) = 0`$.
+> _Proof:_ Let $`P = F_n \cdot F'_n`$, where $`(F'_n)_{jk} = \omega_n^{-jk}`$. The entry $`P_{jk}`$ is:
 >
-> So, $`P`$ is the matrix $`n \cdot I`$. It follows that $`F_n^{-1} = \frac{1}{n} \cdot F'_n`$.
+> ```math
+> P_{jk} = \sum_{m=0}^{n-1} \omega_n^{jm} \cdot \omega_n^{-mk} = \sum_{m=0}^{n-1} (\omega_n^{j-k})^m
+> ```
+>
+> We examine two cases:
+>
+> 1.  **If $`j = k`$ (on-diagonal):** The term is $`(\omega_n^0)^m = 1^m = 1`$. The sum is therefore $`\sum_{m=0}^{n-1} 1 = n`$.
+>
+> 2.  **If $`j \neq k`$ (off-diagonal):** This is a finite geometric series with ratio $`z = \omega_n^{j-k} \neq 1`$. The sum is given by the formula $`(z^n - 1)/(z - 1)`$. The numerator is $`(\omega_n^{j-k})^n = (\omega_n^n)^{j-k} = 1^{j-k} = 1`$. Thus, the sum is $`(1-1)/(z-1) = 0`$.
+>
+> So, $`P`$ is the matrix $`n \cdot I`$, where $`I`$ is the identity matrix. It follows that $`F_n^{-1} = \frac{1}{n} \cdot F'_n`$.
 
 #### The Inverse FFT Algorithm
 
