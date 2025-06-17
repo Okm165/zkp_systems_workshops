@@ -2,7 +2,7 @@
 members = [
     "0_zkp_architecture",
     "1_mathematical_toolkit"
-]
+, "2_fast_polynomial_arithmetic"]
 resolver = "3"
 
 [workspace.package]
@@ -11,3 +11,4 @@ version = "1.0.0"
 readme = "README.md"
 
 [workspace.dependencies]
+lambdaworks-math = { git = "https://github.com/lambdaclass/lambdaworks", features = ["std"] }

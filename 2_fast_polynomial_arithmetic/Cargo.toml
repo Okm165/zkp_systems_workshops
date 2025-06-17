@@ -1,0 +1,8 @@
+[package]
+name = "fast_polynomial_arithmetic"
+edition.workspace = true
+version.workspace = true
+readme = "README.md"
+
+[dependencies]
+lambdaworks-math.workspace = true

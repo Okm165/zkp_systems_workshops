@@ -1,4 +1,4 @@
-# Chapter 1: The Architecture of a Zero-Knowledge Proof System
+# Chapter 0: The Architecture of a Zero-Knowledge Proof System
 
 **Abstract:** This chapter deconstructs modern Zero-Knowledge Proof (ZKP) systems into their constituent architectural components: Polynomial Interactive Oracle Proofs (PIOPs) and Polynomial Commitment Schemes (PCS). It establishes the formal guarantees of a ZKP and maps the prover's engineering pipeline, from a computational claim to a verifiable proof. The primary objective is to provide a robust framework for analyzing and comparing major ZKP systems like STARKs and SNARKs based on their core technical trade-offs.
 
@@ -86,7 +86,7 @@ A key design axis is the type of polynomial used to represent the computation.
 
 ---
 
-### [Chapter 2: The Mathematical Toolkit for Verifiable Computation](../1_mathematical_toolkit/README.md)
+### [Chapter 1: The Mathematical Toolkit for Verifiable Computation](../1_mathematical_toolkit/README.md)
 
 ---
 
