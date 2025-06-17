@@ -11,3 +11,4 @@ version = "1.0.0"
 readme = "README.md"
 
 [workspace.dependencies]
+lambdaworks-math = { git = "https://github.com/lambdaclass/lambdaworks", features = ["std"] }

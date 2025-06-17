@@ -5,3 +5,4 @@ version.workspace = true
 readme = "README.md"
 
 [dependencies]
+lambdaworks-math.workspace = true
