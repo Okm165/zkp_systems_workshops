@@ -1,0 +1,64 @@
+# typos Configuration for the Zero-Knowledge Proofs Deep Dive Repository
+#
+# This file configures the 'typos' spell-checker to understand the
+# domain-specific terminology used in this project.
+# See https://github.com/crate-ci/typos for more configuration options.
+
+[files]
+# By default, typos respects .gitignore, so 'target/' and other ignored paths
+# are already excluded. No further file-level configuration is necessary.
+
+# Add words that are considered correct for this project to the dictionary.
+[default.extend-words]
+# --- ZKP & Cryptography Acronyms ---
+AIR = "AIR"                 # Algebraic Intermediate Representation
+FRI = "FRI"                 # Fast Reed-Solomon Interactive Oracle Proof of Proximity
+Groth = "Groth"             # Jens Groth (e.g., Groth16)
+IPA = "IPA"                 # Inner Product Argument
+IOP = "IOP"                 # Interactive Oracle Proof
+KZG = "KZG"                 # Kate-Zaverucha-Goldberg
+PCS = "PCS"                 # Polynomial Commitment Scheme
+PCSs = "PCSs"               # Plural of PCS
+PIOP = "PIOP"               # Polynomial Interactive Oracle Proof
+PIOPs = "PIOPs"             # Plural of PIOP
+R1CS = "R1CS"               # Rank-1 Constraint System
+SNARKs = "SNARKs"           # Succinct Non-interactive ARgument of Knowledge
+STARK = "STARK"             # Scalable Transparent ARgument of Knowledge
+STARKs = "STARKs"           # Plural of STARK
+ZKP = "ZKP"                 # Zero-Knowledge Proof
+ZKPs = "ZKPs"               # Plural of ZKP
+
+# --- ZKP System & Protocol Names ---
+CircleSTARK = "CircleSTARK"
+Halo = "Halo"               # As in Halo2
+HyperPlonk = "HyperPlonk"
+Plonk = "Plonk"
+Plonky = "Plonky"           # As in Plonky2, Plonky3
+UltraPLONK = "UltraPLONK"
+
+# --- Mathematical & Technical Terms ---
+Arithmetization = "Arithmetization" # A core concept in ZKPs
+codelets = "codelets"       # Term from high-performance computing (FFTW)
+coeffs = "coeffs"           # Common abbreviation for 'coefficients'
+evals = "evals"             # Common abbreviation for 'evaluations'
+FFT = "FFT"                 # Fast Fourier Transform
+FFTW = "FFTW"               # "Fastest Fourier Transform in the West" library
+GF = "GF"                   # Galois Field
+multivariate = "multivariate"
+prover = "prover"
+radix = "radix"             # As in radix-2 FFT
+twiddle = "twiddle"         # As in "twiddle factors"
+twiddles = "twiddles"       # Plural of twiddle
+univariate = "univariate"
+verifier = "verifier"
+
+# --- Project Dependencies, Tools & Author Handles ---
+lambdaclass = "lambdaclass" # Organization name
+lambdaworks = "lambdaworks" # Rust dependency from lambdaclass
+Okm165 = "Okm165"           # GitHub handle Okm165
+bartolomeodiaz = "bartolomeodiaz"   # Twitter handle
+proptest = "proptest"       # Rust testing dependency
+rustfmt = "rustfmt"         # Rust code formatter
+
+# typos is generally aware of programming language keywords,
+# so it's not necessary to add Rust keywords like 'struct', 'fn', 'impl', etc.
