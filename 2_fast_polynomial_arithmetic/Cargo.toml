@@ -6,3 +6,15 @@ readme = "README.md"
 
 [dependencies]
 lambdaworks-math.workspace = true
+proptest.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[profile.bench]
+debug = false # Set to false for accurate performance measurements
+lto = true    # Link Time Optimization for better benchmark performance
+
+[[bench]]
+name = "polynomial_multiplication"
+harness = false # Important: This tells Cargo you're providing your own main function in the bench file

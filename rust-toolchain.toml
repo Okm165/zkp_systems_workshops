@@ -3,7 +3,7 @@
 
 # Sets the toolchain to the stable release channel.
 # This ensures that builds are reproducible and use the latest stable version of Rust.
-channel = "stable"
+channel = "nightly-2025-04-06"
 
 # Lists the components to be installed with the toolchain.
 # "rustfmt" is the standard Rust code formatter. Including it here ensures
