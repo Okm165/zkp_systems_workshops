@@ -206,4 +206,10 @@ The Fast Fourier Transform is an algorithmic cornerstone of computational mathem
 
 ---
 
+<p align="center">
+  <img src="./benches/lines.svg" alt="Benchmarks FFT vs Naive" style="width:100%; max-width:800px;">
+</p>
+
+---
+
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
