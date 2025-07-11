@@ -19,6 +19,9 @@ The course is structured as a series of chapters, each building on the last.
 - ### [Chapter 2: The Fast Fourier Transform for Polynomial Multiplication](./2_fast_polynomial_arithmetic/README.md)
   - **Description:** This chapter introduces the Fast Fourier Transform (FFT) as a high-performance algorithm for polynomial multiplication. We analyze the $`\Theta(n^2)`$ bottleneck of naive convolution and demonstrate how the FFT, by using the complex roots of unity, provides a $`\Theta(n \log n)`$ method for converting polynomials to and from the point-value representation, where multiplication is a linear-time operation. We derive the algorithm's structure, including the butterfly operation and bit-reversal permutation, and show how the same logic applies to the inverse transform.
 
+- ### [Chapter 3: Foundations of Polynomial Commitment Schemes with a Focus on FRI](./3_polynomial_commitment_scheme/README.md)
+  - **Description:** This chapter introduces Polynomial Commitment Schemes (PCS) as a foundational cryptographic primitive essential for modern Zero-Knowledge Proof (ZKP) systems. We will define a PCS and its core properties—binding, succinctness, and evaluation proofs—and explore its role in translating computational integrity claims into verifiable algebraic statements
+
 ---
 
 ## About & Contributions
