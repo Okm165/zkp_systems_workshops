@@ -6,14 +6,7 @@
 *   Define a Polynomial Commitment Scheme and its primary operations.
 *   Explain the core properties of binding, succinctness, and evaluation proofs.
 *   Describe the role of PCS as a building block in Zero-Knowledge Proofs.
-*   Distinguish between transparent PCS and those requiring a trusted setup.
-*   Understand the role of finite fields and Reed-Solomon codes in FRI.
-*   Explain the objective of FRI as a "proof of proximity" to a low-degree polynomial.
 *   Detail the Commit, Fold, and Query phases of the FRI protocol.
-*   Mathematically derive and explain the iterative degree-reduction (folding) step.
-*   Describe how Merkle trees are used for commitments and verification in FRI.
-*   Explain the concept of probabilistic soundness and how random challenges contribute to FRI's security.
-*   Explain how the Fiat-Shamir heuristic makes FRI practical for real-world applications.
 
 ---
 
