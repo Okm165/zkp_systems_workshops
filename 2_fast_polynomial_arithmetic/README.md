@@ -210,6 +210,11 @@ The Fast Fourier Transform is an algorithmic cornerstone of computational mathem
   <img src="./benches/lines.svg" alt="Benchmarks FFT vs Naive" style="width:100%; max-width:800px;">
 </p>
 
+
+---
+
+### [Chapter 3: Foundations of Polynomial Commitment Schemes with a Focus on FRI](../3_polynomial_commitment_scheme/README.md)
+
 ---
 
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
