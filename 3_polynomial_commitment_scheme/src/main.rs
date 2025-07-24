@@ -30,8 +30,6 @@
 //!     - **Merkle Paths**: That the revealed evaluations are consistent with the commitments.
 //!     - **Folding Consistency**: That the folding process was performed correctly at each step for
 //!       the queried points. This ensures the Prover didn't cheat during the folding phase.
-
-// --- IMPORTS ---
 use std::fmt;
 
 use lambdaworks_crypto::fiat_shamir::default_transcript::DefaultTranscript;
@@ -45,8 +43,6 @@ use lambdaworks_math::field::traits::IsFFTField;
 use lambdaworks_math::polynomial::Polynomial;
 use lambdaworks_math::traits::AsBytes;
 
-// --- TYPE ALIASES & CONSTANTS ---
-
 /// The prime field for our computations (Babybear).
 type F = Babybear31PrimeField;
 /// A field element in the Babybear field.
@@ -55,8 +51,6 @@ type FE = FieldElement<F>;
 type FriBackend = Keccak256Backend<F>;
 /// The name of the protocol, used for initializing the transcript.
 const PROTOCOL_ID: &[u8] = b"Educational FRI";
-
-// --- CUSTOM ERROR TYPE ---
 
 /// Defines the possible errors that can occur during the FRI protocol execution.
 #[derive(Debug, PartialEq, Eq)]
@@ -92,8 +86,6 @@ impl fmt::Display for FriError {
         }
     }
 }
-
-// --- SHARED PROTOCOL PARAMETERS & STRUCTURES ---
 
 /// Shared parameters for the FRI protocol, agreed upon by the Prover and Verifier.
 #[derive(Debug, Clone)]
@@ -165,8 +157,6 @@ pub struct FriProof {
     query_decommitments: Vec<QueryDecommitment>,
 }
 
-// --- CORE FOLDING LOGIC ---
-
 /// Folds a layer of evaluations based on a challenge `beta`.
 /// This is the heart of the FRI protocol's recursive step.
 ///
@@ -207,8 +197,6 @@ fn fold_evaluations(evaluations: &[FE], domain: &[FE], beta: &FE) -> (Vec<FE>, V
 
     (next_evaluations, next_domain)
 }
-
-// --- PROVER ---
 
 /// The Prover entity for the FRI protocol.
 pub struct Prover {
@@ -394,8 +382,6 @@ impl Prover {
         (u64::from_be_bytes(sample_bytes) % max_value as u64) as usize
     }
 }
-
-// --- VERIFIER ---
 
 /// The Verifier entity for the FRI protocol.
 pub struct Verifier {
@@ -593,8 +579,6 @@ impl Verifier {
         (u64::from_be_bytes(sample_bytes) % max_value as u64) as usize
     }
 }
-
-// --- MAIN EXECUTION ---
 
 fn main() {
     // 1. SETUP
