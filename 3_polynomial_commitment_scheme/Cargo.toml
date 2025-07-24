@@ -7,3 +7,4 @@ readme.workspace = true
 [dependencies]
 lambdaworks-math.workspace = true
 lambdaworks-crypto.workspace = true
+hex.workspace = true
