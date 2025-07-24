@@ -3,10 +3,11 @@
 **Abstract:** This chapter introduces Polynomial Commitment Schemes (PCS) as a foundational cryptographic primitive essential for modern Zero-Knowledge Proof (ZKP) systems. We will define a PCS and its core properties—binding, succinctness, and evaluation proofs—and explore its role in translating computational integrity claims into verifiable algebraic statements. A key focus is the fundamental dichotomy between schemes requiring a trusted setup and transparent schemes, setting the stage for a detailed examination of the FRI protocol. The chapter then provides a detailed dissection of FRI, establishing its mathematical preliminaries in finite fields and Reed-Solomon codes, and meticulously walking through its Commit, Fold, and Query phases. Finally, we will analyze the security foundations of FRI, explaining its probabilistic soundness, the role of the Fiat-Shamir heuristic in making it practical, and the performance trade-offs inherent in its transparent design.
 
 **Learning Objectives:** Upon completion of this chapter, you will be able to:
-*   Define a Polynomial Commitment Scheme and its primary operations.
-*   Explain the core properties of binding, succinctness, and evaluation proofs.
-*   Describe the role of PCS as a building block in Zero-Knowledge Proofs.
-*   Detail the Commit, Fold, and Query phases of the FRI protocol.
+
+- Define a Polynomial Commitment Scheme and its primary operations.
+- Explain the core properties of binding, succinctness, and evaluation proofs.
+- Describe the role of PCS as a building block in Zero-Knowledge Proofs.
+- Detail the Commit, Fold, and Query phases of the FRI protocol.
 
 ---
 
@@ -28,18 +29,18 @@ A Polynomial Commitment Scheme is a cryptographic protocol that enables a Prover
 
 For a PCS to be secure and useful, it must satisfy several critical properties:
 
-*   **Binding:** Once a Prover commits to a polynomial `P(X)` via a commitment `c`, they are cryptographically "bound" to it. It must be computationally infeasible for the Prover to later produce a valid proof for a different polynomial `P'(X)` that also corresponds to the same commitment `c`. This ensures the integrity and immutability of the commitment.
-*   **Hiding (Optional but Desirable):** The commitment `c` should not reveal any information about the polynomial `P(X)`. An observer seeing only `c` should not be able to deduce the coefficients of `P(X)`.
-*   **Evaluation Proofs:** The scheme must provide a mechanism for a Prover to prove that `P(z) = y` for any given point `z`. This proof, `π`, allows the Verifier to be convinced of the evaluation's correctness without needing to know the entire polynomial.
-*   **Succinctness:** Both the commitment `c` and the proof `π` must be significantly smaller than a full description of the polynomial `P(X)`. Furthermore, the `Verify` algorithm should be highly efficient, ideally running in time that is polylogarithmic in the degree of `P(X)`. Succinctness is the key to achieving scalability.
+- **Binding:** Once a Prover commits to a polynomial `P(X)` via a commitment `c`, they are cryptographically "bound" to it. It must be computationally infeasible for the Prover to later produce a valid proof for a different polynomial `P'(X)` that also corresponds to the same commitment `c`. This ensures the integrity and immutability of the commitment.
+- **Hiding (Optional but Desirable):** The commitment `c` should not reveal any information about the polynomial `P(X)`. An observer seeing only `c` should not be able to deduce the coefficients of `P(X)`.
+- **Evaluation Proofs:** The scheme must provide a mechanism for a Prover to prove that `P(z) = y` for any given point `z`. This proof, `π`, allows the Verifier to be convinced of the evaluation's correctness without needing to know the entire polynomial.
+- **Succinctness:** Both the commitment `c` and the proof `π` must be significantly smaller than a full description of the polynomial `P(X)`. Furthermore, the `Verify` algorithm should be highly efficient, ideally running in time that is polylogarithmic in the degree of `P(X)`. Succinctness is the key to achieving scalability.
 
 #### **1.4 The Foundational Split: Transparency vs. Trusted Setups**
 
 Not all Polynomial Commitment Schemes are created equal. A fundamental distinction lies in how their public parameters are generated, which gives rise to two major classes of schemes.
 
-*   **Trusted Setup Schemes (e.g., KZG):** Some of the most efficient PCS in terms of proof size, such as the Kate-Zaverucha-Goldberg (KZG) scheme, require a **trusted setup**. In a one-time ceremony, a secret random value, `τ` (tau), is generated and then must be destroyed. The security of the entire system relies on this "toxic waste" being permanently forgotten. If `τ` were ever compromised, an attacker could forge invalid proofs, breaking the system's soundness. This trust assumption is a significant social and technical vulnerability.
+- **Trusted Setup Schemes (e.g., KZG):** Some of the most efficient PCS in terms of proof size, such as the Kate-Zaverucha-Goldberg (KZG) scheme, require a **trusted setup**. In a one-time ceremony, a secret random value, `τ` (tau), is generated and then must be destroyed. The security of the entire system relies on this "toxic waste" being permanently forgotten. If `τ` were ever compromised, an attacker could forge invalid proofs, breaking the system's soundness. This trust assumption is a significant social and technical vulnerability.
 
-*   **Transparent Schemes (e.g., FRI):** In contrast, **transparent** schemes require no trusted setup. All public parameters are generated from public randomness, typically via a cryptographic hash function. This eliminates the single point of failure associated with a trusted setup, making the system more robust, decentralized, and philosophically aligned with trustless systems. Many transparent schemes, including FRI, also base their security on collision-resistant hash functions, an assumption believed to be resistant to quantum attacks, making them a more "future-proof" choice. The primary trade-off is often performance, as transparent schemes typically have larger proof sizes than their trusted-setup counterparts.
+- **Transparent Schemes (e.g., FRI):** In contrast, **transparent** schemes require no trusted setup. All public parameters are generated from public randomness, typically via a cryptographic hash function. This eliminates the single point of failure associated with a trusted setup, making the system more robust, decentralized, and philosophically aligned with trustless systems. Many transparent schemes, including FRI, also base their security on collision-resistant hash functions, an assumption believed to be resistant to quantum attacks, making them a more "future-proof" choice. The primary trade-off is often performance, as transparent schemes typically have larger proof sizes than their trusted-setup counterparts.
 
 ---
 
@@ -69,10 +70,10 @@ This is the iterative core of the protocol. The goal is to recursively reduce th
 
 1.  **The Folding Operation:** A polynomial `f(x)` can be split into its even and odd degree components: `f(x) = f_e(x²) + x · f_o(x²)`. Here, `f_e` and `f_o` are polynomials with roughly half the degree of `f`.
 2.  **The Recursive Step:** For each round `i`:
-    *   The Verifier sends a random challenge value `βᵢ` from the finite field.
-    *   The Prover uses `βᵢ` to "fold" the previous polynomial `fᵢ₋₁` into a new polynomial `fᵢ` using a random linear combination: `fᵢ(x) = fᵢ₋₁_e(x) + βᵢ · fᵢ₋₁_o(x)`.
-    *   This new polynomial `fᵢ` has its degree halved. The domain of evaluation also shrinks.
-    *   The Prover commits to the evaluations of `fᵢ` by building a new Merkle tree and sending its root to the Verifier.
+    - The Verifier sends a random challenge value `βᵢ` from the finite field.
+    - The Prover uses `βᵢ` to "fold" the previous polynomial `fᵢ₋₁` into a new polynomial `fᵢ` using a random linear combination: `fᵢ(x) = fᵢ₋₁_e(x) + βᵢ · fᵢ₋₁_o(x)`.
+    - This new polynomial `fᵢ` has its degree halved. The domain of evaluation also shrinks.
+    - The Prover commits to the evaluations of `fᵢ` by building a new Merkle tree and sending its root to the Verifier.
 3.  **Final Step:** This process repeats until the final polynomial is reduced to a constant (degree 0). The Prover sends this final constant value directly to the Verifier.
 
 > **Deep Dive: Mathematical Proof of Degree Reduction**
@@ -85,8 +86,8 @@ After committing and folding, the Verifier checks that the Prover was honest by 
 1.  **Query Issuance:** The Verifier picks a random leaf index `j` from the original Merkle tree of `f₀`.
 2.  **Prover's Response:** For this index, the Prover provides the evaluation `f₀(dⱼ)` and all corresponding evaluations from the subsequent folded layers, along with the **Merkle authentication paths** for each value.
 3.  **Verifier's Check:** The Verifier performs two crucial checks:
-    *   **Merkle Path Verification:** The Verifier uses the authentication paths to confirm that the revealed values are consistent with the Merkle roots received in the commit phase.
-    *   **Consistency Check:** The Verifier uses the revealed evaluations from consecutive layers (`fᵢ` and `fᵢ₊₁`) and the random challenge `βᵢ₊₁` to check that the folding formula holds true. For a given point `y` in a domain `Dᵢ`, the verifier needs `fᵢ(y)` and `fᵢ(-y)` to compute `fᵢ₊₁(y²)`. If the Prover's revealed value for `fᵢ₊₁(y²)` matches the Verifier's calculation, the check passes for that query.
+    - **Merkle Path Verification:** The Verifier uses the authentication paths to confirm that the revealed values are consistent with the Merkle roots received in the commit phase.
+    - **Consistency Check:** The Verifier uses the revealed evaluations from consecutive layers (`fᵢ` and `fᵢ₊₁`) and the random challenge `βᵢ₊₁` to check that the folding formula holds true. For a given point `y` in a domain `Dᵢ`, the verifier needs `fᵢ(y)` and `fᵢ(-y)` to compute `fᵢ₊₁(y²)`. If the Prover's revealed value for `fᵢ₊₁(y²)` matches the Verifier's calculation, the check passes for that query.
 
 By performing enough random queries, the Verifier becomes statistically convinced that the original commitment was indeed to a low-degree polynomial.
 
@@ -98,8 +99,8 @@ By performing enough random queries, the Verifier becomes statistically convince
 
 The security of FRI is not absolute but **probabilistic**. A dishonest Prover has a non-zero, but negligibly small, probability of cheating, known as the **soundness error**. This security relies on randomness.
 
-*   **Random Folding Challenges (`βᵢ`):** A dishonest Prover who starts with a function that is "far" from any low-degree polynomial cannot predict the random challenge `βᵢ`. This makes it computationally infeasible for them to craft a folded polynomial that maliciously appears "close" to a low-degree polynomial.
-*   **Random Queries:** Because the Prover cannot predict which points the Verifier will check, they must be honest across the *entire* domain. Any inconsistency is highly likely to be exposed by a random query.
+- **Random Folding Challenges (`βᵢ`):** A dishonest Prover who starts with a function that is "far" from any low-degree polynomial cannot predict the random challenge `βᵢ`. This makes it computationally infeasible for them to craft a folded polynomial that maliciously appears "close" to a low-degree polynomial.
+- **Random Queries:** Because the Prover cannot predict which points the Verifier will check, they must be honest across the _entire_ domain. Any inconsistency is highly likely to be exposed by a random query.
 
 The formal argument for FRI's soundness relies on the **Proximity Gap Theorem**, which informally states that if a function is "far" from the set of low-degree polynomials, the randomly folded function will also be "far" from the set of halved-degree polynomials. This guarantees that "farness" (i.e., cheating) is propagated through the rounds and will be detected at the final check, causing the Verifier to reject.
 
@@ -107,10 +108,10 @@ The formal argument for FRI's soundness relies on the **Proximity Gap Theorem**,
 
 As established, FRI's transparency is a compelling feature. By obviating the need for a trusted setup, it provides key advantages:
 
-*   **Trust Minimization:** It removes the need to trust participants of a setup ceremony, making the system more secure.
-*   **Reduced Complexity:** It eliminates the logistical and security challenges of executing a secure setup ceremony.
-*   **Permissionless Participation:** Anyone can become a Prover or Verifier using only public information.
-*   **Plausible Post-Quantum Security:** By relying on hash functions, FRI offers stronger long-term security against future quantum computers.
+- **Trust Minimization:** It removes the need to trust participants of a setup ceremony, making the system more secure.
+- **Reduced Complexity:** It eliminates the logistical and security challenges of executing a secure setup ceremony.
+- **Permissionless Participation:** Anyone can become a Prover or Verifier using only public information.
+- **Plausible Post-Quantum Security:** By relying on hash functions, FRI offers stronger long-term security against future quantum computers.
 
 #### **3.3 Making FRI Non-Interactive: The Fiat-Shamir Heuristic**
 
@@ -121,6 +122,10 @@ Instead of waiting for a random `βᵢ` from the Verifier, the Prover computes i
 #### **3.4 Performance Considerations**
 
 While powerful, FRI comes with a primary performance trade-off: **proof size**. The proof must contain Merkle paths for each query across multiple rounds, causing the proof size to scale polylogarithmically with the size of the computation. This is larger than the constant-size proofs of schemes like KZG. This trade-off between transparency and post-quantum security on one hand, and proof size on the other, is a central consideration in the design of modern ZKP systems.
+
+---
+
+### [Chapter 4: Algebraic Intermediate Representation (AIR) and Constraint Design](../4_air_constraints_design/README.md)
 
 ---
 
