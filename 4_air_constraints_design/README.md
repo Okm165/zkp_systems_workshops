@@ -140,13 +140,13 @@ The prover must now substantiate multiple claims simultaneously:
 1.  **The Main Claim:** `H(x)` is a low-degree polynomial.
 2.  **The Opening Claims:** The provided evaluations $`H(z), t(z), t(z \cdot g), t(z \cdot g^2)`$ are correct.
 
-Proving that an evaluation $`P(z) = y`$ is correct for a committed polynomial $`P(x)`$ is equivalent to proving that the quotient $`(P(x) - y) / (x - z)`$ is a low-degree polynomial. Performing a separate FRI proof for each of these claims would be highly inefficient.
+Proving that an evaluation $`P(z) = y`$ is correct for a committed polynomial $`P(x)`$ is equivalent to proving that the quotient $`\frac{P(x) - y}{x - z}`$ is a low-degree polynomial. Performing a separate FRI proof for each of these claims would be highly inefficient.
 
 The **DEEP Composition Polynomial** provides an elegant solution by batching all these polynomiality proofs into one. The verifier supplies a new set of random challenges $`\gamma_i`$ from `F`, and the prover constructs:
 
 $$
 \begin{align*}
-\text{Deep}(x) = & \quad \gamma_1 \cdot \frac{H(x) - H(z)}{x - z} + \gamma_2 \cdot \frac{t(x) - t(z)}{x - z} + \gamma_3 \cdot \frac{t(x) - t(z \cdot g)}{x - z \cdot g} + \gamma_4 \cdot \frac{t(x) - t(z \cdot g^2)}{x - z \cdot g^2}
+\text{Deep}(x) = \gamma_1 \cdot \frac{H(x) - H(z)}{x - z} + \gamma_2 \cdot \frac{t(x) - t(z)}{x - z} + \gamma_3 \cdot \frac{t(x) - t(z \cdot g)}{x - z \cdot g} + \gamma_4 \cdot \frac{t(x) - t(z \cdot g^2)}{x - z \cdot g^2}
 \end{align*}
 $$
 
