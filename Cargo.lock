@@ -12,6 +12,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "air_constraints_design"
+version = "1.0.0"
+
+[[package]]
 name = "anes"
 version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

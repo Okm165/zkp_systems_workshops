@@ -1,0 +1,7 @@
+[package]
+name = "air_constraints_design"
+edition.workspace = true
+version.workspace = true
+readme.workspace = true
+
+[dependencies]
