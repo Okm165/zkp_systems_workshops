@@ -12,6 +12,8 @@ version = "1.0.0"
 readme = "README.md"
 
 [workspace.dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+lambdaworks-crypto = { git = "https://github.com/lambdaclass/lambdaworks", features = ["std"] }
 lambdaworks-math = { git = "https://github.com/lambdaclass/lambdaworks", features = ["std"] }
 proptest = "1.2.0"
-criterion = { version = "0.5", features = ["html_reports"] }
+hex = "0.4.3"
