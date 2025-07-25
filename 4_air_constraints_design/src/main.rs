@@ -1,6 +1,7 @@
+use lambdaworks_math::fft::cpu::roots_of_unity::get_powers_of_primitive_root_coset;
 use lambdaworks_math::field::element::FieldElement;
-use lambdaworks_math::field::fields::fft_friendly::babybear::Babybear31PrimeField;
-use lambdaworks_math::field::traits::IsFFTField;
+use lambdaworks_math::field::fields::fft_friendly::babybear_u32::Babybear31PrimeField;
+use lambdaworks_math::field::traits::{IsFFTField, IsField};
 use lambdaworks_math::polynomial::Polynomial;
 
 /// The prime field for our computations (Babybear).
@@ -43,17 +44,23 @@ struct Arithmetization {
 
 impl Arithmetization {
     /// Performs the arithmetization of the execution trace.
+    /// Instead of materializing constraint polynomials, we compute their evaluations on the LDE
+    /// domain.
     fn new(trace: &[FE], blowup_factor: usize) -> Self {
         println!("- Step 2.1: Arithmetization -");
         let trace_length = trace.len();
-        assert!(trace_length.is_power_of_two());
+        assert!(
+            trace_length.is_power_of_two(),
+            "Trace length must be a power of two."
+        );
 
         // 1. Generate the evaluation domain D_S = {g^0, g^1, ..., g^{n-1}}
         let root_order = trace_length.trailing_zeros();
         let generator = F::get_primitive_root_of_unity(root_order as u64).unwrap();
         let domain: Vec<FE> = (0..trace_length).map(|i| generator.pow(i)).collect();
 
-        // 2. Interpolate the trace to get the trace polynomial t(x)
+        // 2. Interpolate the trace to get the trace polynomial t(x) in coefficient form.
+        // This is one of the few times we need the coefficient form.
         let trace_poly = Polynomial::interpolate_fft::<F>(trace).unwrap();
         println!(
             "  - Interpolated trace of {} elements into t(x) of degree {}.",
@@ -61,18 +68,21 @@ impl Arithmetization {
             trace_poly.degree()
         );
 
-        // 3. Define LDE (Low-Degree Extension) Domain
+        // 3. Define LDE (Low-Degree Extension) Domain on a coset.
         let lde_domain_size = trace_length * blowup_factor;
         let lde_root_order = lde_domain_size.trailing_zeros();
-        let lde_generator = F::get_primitive_root_of_unity(lde_root_order as u64).unwrap();
-        let lde_domain: Vec<FE> = (0..lde_domain_size)
-            .map(|i| lde_generator.pow(i) * FE::from(3))
-            .collect();
+        let lde_domain = get_powers_of_primitive_root_coset(
+            lde_root_order as u64,
+            lde_domain_size,
+            &FE::from(3), // Coset offset as hinted
+        )
+        .unwrap();
 
-        // 4. Evaluate Trace Polynomial on LDE Domain
+        // 4. Evaluate Trace Polynomial on LDE Domain to get t(x)'s evaluations.
         let trace_poly_lde = trace_poly.evaluate_slice(&lde_domain);
 
-        // 5. Design and Evaluate Boundary Constraints
+        // 5. Design and Evaluate Boundary Constraints on the LDE domain.
+        println!("  - Evaluating boundary constraints on the LDE domain...");
         let boundary_constraint_poly_lde = {
             let boundary_interpolant = Polynomial::interpolate(
                 &[domain[0].to_owned(), domain[1].to_owned()],
@@ -90,20 +100,19 @@ impl Arithmetization {
                 .collect::<Vec<_>>();
             let denominator_lde = boundary_zerofier.evaluate_slice(&lde_domain);
 
-            // Point-wise division
+            // Point-wise division using batch inversion for efficiency
             let mut denominator_inv_lde = denominator_lde;
             FE::inplace_batch_inverse(&mut denominator_inv_lde).unwrap();
 
-            let evals = numerator_lde
+            numerator_lde
                 .iter()
                 .zip(denominator_inv_lde.iter())
                 .map(|(num, den_inv)| num * den_inv)
-                .collect::<Vec<_>>();
-
-            evals
+                .collect::<Vec<_>>()
         };
 
-        // 6. Design and Evaluate Transition Constraints
+        // 6. Design and Evaluate Transition Constraints on the LDE domain.
+        println!("  - Evaluating transition constraints on the LDE domain...");
         let transition_constraint_poly_lde = {
             // Numerator: t(x * g^2) - t(x * g) - t(x)
             let trace_lde_g = trace_poly.evaluate_slice(
@@ -126,31 +135,27 @@ impl Arithmetization {
                 .collect::<Vec<_>>();
 
             // Denominator (Zerofier): Z_T(x) = (x^n - 1) / ((x - g^{n-2})(x-g^{n-1}))
-            let zerofier_numerator = Polynomial::new_monomial(FE::one(), trace_length) - FE::one();
             let exemptions = (Polynomial::new(&[-domain[trace_length - 2].to_owned(), FE::one()]))
                 * (Polynomial::new(&[-domain[trace_length - 1].to_owned(), FE::one()]));
 
             let mut exemptions_inv_lde = exemptions.evaluate_slice(&lde_domain);
             FE::inplace_batch_inverse(&mut exemptions_inv_lde).unwrap();
 
-            let denominator_lde = zerofier_numerator
-                .evaluate_slice(&lde_domain)
+            let denominator_lde = lde_domain
                 .iter()
                 .zip(exemptions_inv_lde.iter())
-                .map(|(n, d_inv)| n * d_inv)
+                .map(|(x, inv_exemption)| (x.pow(trace_length) - FE::one()) * inv_exemption)
                 .collect::<Vec<_>>();
 
             // Point-wise division
             let mut denominator_inv_lde = denominator_lde;
             FE::inplace_batch_inverse(&mut denominator_inv_lde).unwrap();
 
-            let evals = numerator_lde
+            numerator_lde
                 .iter()
                 .zip(denominator_inv_lde.iter())
                 .map(|(num, den_inv)| num * den_inv)
-                .collect::<Vec<_>>();
-
-            evals
+                .collect::<Vec<_>>()
         };
 
         Self {
@@ -181,7 +186,8 @@ impl Composition {
     fn new(arithmetization: &Arithmetization, beta1: &FE, beta2: &FE) -> Self {
         println!("\n- Step 3.1: Composition -");
 
-        // Construct the LDE of H(x) directly from the LDEs of B(x) and C(x).
+        // Construct the LDE of H(x) directly by doing a linear combination of the LDEs of B(x) and
+        // C(x).
         let composition_poly_lde = arithmetization
             .boundary_constraint_poly_lde
             .iter()
@@ -189,8 +195,9 @@ impl Composition {
             .map(|(b, c)| b * beta1 + c * beta2)
             .collect::<Vec<_>>();
 
-        // Interpolate to get the coefficient form.
-        let composition_poly = Polynomial::interpolate_fft::<F>(&composition_poly_lde).unwrap();
+        // Interpolate to get the coefficient form. This is needed for the OOD check.
+        let composition_poly =
+            Polynomial::interpolate_offset_fft::<F>(&composition_poly_lde, &FE::from(3)).unwrap();
 
         println!(
             "  - Constructed composition polynomial H(x) of degree {}.",
@@ -206,16 +213,14 @@ impl Composition {
     /// Simulates the out-of-domain check.
     fn perform_ood_check(&self, arithmetization: &Arithmetization, beta1: &FE, beta2: &FE, z: &FE) {
         println!("\n- Step 3.2: Out-of-Domain Check -");
-        let generator =
+        let g =
             F::get_primitive_root_of_unity(arithmetization.trace_length.trailing_zeros() as u64)
                 .unwrap();
 
         // Prover provides evaluations at z and its shifts.
         let t_z = arithmetization.trace_poly.evaluate(z);
-        let t_zg = arithmetization.trace_poly.evaluate(&(z * &generator));
-        let t_zg2 = arithmetization
-            .trace_poly
-            .evaluate(&(z * &generator.square()));
+        let t_zg = arithmetization.trace_poly.evaluate(&(z * &g));
+        let t_zg2 = arithmetization.trace_poly.evaluate(&(z * &g.square()));
         let h_z = self.composition_poly.evaluate(z);
         println!("  - Prover sends evaluations at random point z: t(z), t(zg), t(zg^2), H(z)");
 
@@ -319,6 +324,14 @@ impl DeepComposition {
             .zip(t_zg2_term_lde.iter())
             .map(|(((h, t_z), t_zg), t_zg2)| h + t_z + t_zg + t_zg2)
             .collect::<Vec<_>>();
+
+        // We can interpolate this to check its degree if needed for debugging
+        let deep_poly_coeffs =
+            Polynomial::interpolate_offset_fft::<F>(&deep_poly_lde, &FE::from(3)).unwrap();
+        println!(
+            "  - Constructed DEEP composition polynomial evaluations. (Implied degree: {})",
+            deep_poly_coeffs.degree()
+        );
 
         Self { deep_poly_lde }
     }
