@@ -14,6 +14,9 @@ dependencies = [
 [[package]]
 name = "air_constraints_design"
 version = "1.0.0"
+dependencies = [
+ "lambdaworks-math",
+]
 
 [[package]]
 name = "anes"
