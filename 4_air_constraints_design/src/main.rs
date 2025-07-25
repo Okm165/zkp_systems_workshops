@@ -1,7 +1,7 @@
 use lambdaworks_math::fft::cpu::roots_of_unity::get_powers_of_primitive_root_coset;
 use lambdaworks_math::field::element::FieldElement;
 use lambdaworks_math::field::fields::fft_friendly::babybear_u32::Babybear31PrimeField;
-use lambdaworks_math::field::traits::{IsFFTField, IsField};
+use lambdaworks_math::field::traits::IsFFTField;
 use lambdaworks_math::polynomial::Polynomial;
 
 /// The prime field for our computations (Babybear).
@@ -23,7 +23,7 @@ fn generate_fibonacci_trace(trace_length: usize) -> Vec<FE> {
     trace[1] = FE::one();
 
     for i in 2..trace_length {
-        trace[i] = &trace[i - 1] + &trace[i - 2];
+        trace[i] = trace[i - 1] + trace[i - 2];
     }
     trace
 }
@@ -102,13 +102,10 @@ impl Arithmetization {
         // B(x) will be a polynomial (i.e., division is clean) iff the constraints hold.
         println!("  [2.2] Evaluating boundary constraints on the LDE domain...");
         let boundary_constraint_poly_lde = {
-            let boundary_interpolant = Polynomial::interpolate(
-                &[domain[0].clone(), domain[1].clone()],
-                &[FE::one(), FE::one()],
-            )
-            .unwrap();
-            let boundary_zerofier_poly = Polynomial::new(&[-domain[0].clone(), FE::one()])
-                * Polynomial::new(&[-domain[1].clone(), FE::one()]);
+            let boundary_interpolant =
+                Polynomial::interpolate(&[domain[0], domain[1]], &[FE::one(), FE::one()]).unwrap();
+            let boundary_zerofier_poly = Polynomial::new(&[-domain[0], FE::one()])
+                * Polynomial::new(&[-domain[1], FE::one()]);
 
             let numerator_lde = trace_poly_lde
                 .iter()
@@ -139,13 +136,13 @@ impl Arithmetization {
             let trace_lde_g = trace_poly.evaluate_slice(
                 &lde_domain
                     .iter()
-                    .map(|x| x * &domain_generator)
+                    .map(|x| x * domain_generator)
                     .collect::<Vec<_>>(),
             );
             let trace_lde_g2 = trace_poly.evaluate_slice(
                 &lde_domain
                     .iter()
-                    .map(|x| x * &domain_generator.square())
+                    .map(|x| x * domain_generator.square())
                     .collect::<Vec<_>>(),
             );
             let numerator_lde = trace_lde_g2
@@ -158,8 +155,8 @@ impl Arithmetization {
             // The zerofier Z_T(x) vanishes on all points of the trace domain except the
             // last two, where the transition constraint isn't supposed to hold.
             let transition_exemptions_poly =
-                (Polynomial::new(&[-domain[trace_length - 2].clone(), FE::one()]))
-                    * (Polynomial::new(&[-domain[trace_length - 1].clone(), FE::one()]));
+                (Polynomial::new(&[-domain[trace_length - 2], FE::one()]))
+                    * (Polynomial::new(&[-domain[trace_length - 1], FE::one()]));
 
             let mut exemptions_inv_lde = transition_exemptions_poly.evaluate_slice(&lde_domain);
             FE::inplace_batch_inverse(&mut exemptions_inv_lde).unwrap();
@@ -269,27 +266,23 @@ impl Composition {
         // It computes the boundary and transition constraints at 'z' using the claimed t(z) values.
         println!("  <-- Verifier: Reconstructs H(z) to check consistency.");
         let boundary_interpolant = Polynomial::interpolate(
-            &[
-                arithmetization.domain[0].clone(),
-                arithmetization.domain[1].clone(),
-            ],
+            &[arithmetization.domain[0], arithmetization.domain[1]],
             &[FE::one(), FE::one()],
         )
         .unwrap();
-        let boundary_zerofier_z =
-            (z - &arithmetization.domain[0]) * (z - &arithmetization.domain[1]);
+        let boundary_zerofier_z = (z - arithmetization.domain[0]) * (z - arithmetization.domain[1]);
         let boundary_eval_z =
-            (&t_z - boundary_interpolant.evaluate(z)) * boundary_zerofier_z.inv().unwrap();
+            (t_z - boundary_interpolant.evaluate(z)) * boundary_zerofier_z.inv().unwrap();
 
         let transition_zerofier_z = {
             let numerator = z.pow(arithmetization.trace_length) - FE::one();
-            let exemptions_at_z = (z - &arithmetization.domain[arithmetization.trace_length - 2])
-                * (z - &arithmetization.domain[arithmetization.trace_length - 1]);
+            let exemptions_at_z = (z - arithmetization.domain[arithmetization.trace_length - 2])
+                * (z - arithmetization.domain[arithmetization.trace_length - 1]);
             numerator * exemptions_at_z.inv().unwrap()
         };
-        let transition_eval_z = (&t_zg2 - &t_zg - &t_z) * transition_zerofier_z.inv().unwrap();
+        let transition_eval_z = (t_zg2 - t_zg - t_z) * transition_zerofier_z.inv().unwrap();
 
-        let h_z_reconstructed = &boundary_eval_z * alpha1 + &transition_eval_z * alpha2;
+        let h_z_reconstructed = boundary_eval_z * alpha1 + transition_eval_z * alpha2;
 
         println!(
             "      Reconstructed H(z): {}",
@@ -346,25 +339,25 @@ impl DeepComposition {
         let h_term_lde = h_lde
             .iter()
             .zip(&arithmetization.lde_domain)
-            .map(|(h_xi, xi)| (h_xi - &h_z) * (xi - z).inv().unwrap())
+            .map(|(h_xi, xi)| (h_xi - h_z) * (xi - z).inv().unwrap())
             .collect::<Vec<_>>();
 
         let t_z_term_lde = t_lde
             .iter()
             .zip(&arithmetization.lde_domain)
-            .map(|(t_xi, xi)| (t_xi - &t_z) * (xi - z).inv().unwrap())
+            .map(|(t_xi, xi)| (t_xi - t_z) * (xi - z).inv().unwrap())
             .collect::<Vec<_>>();
 
         let t_zg_term_lde = t_lde
             .iter()
             .zip(&arithmetization.lde_domain)
-            .map(|(t_xi, xi)| (t_xi - &t_zg) * (xi - (z * g)).inv().unwrap())
+            .map(|(t_xi, xi)| (t_xi - t_zg) * (xi - (z * g)).inv().unwrap())
             .collect::<Vec<_>>();
 
         let t_zg2_term_lde = t_lde
             .iter()
             .zip(&arithmetization.lde_domain)
-            .map(|(t_xi, xi)| (t_xi - &t_zg2) * (xi - (z * g.square())).inv().unwrap())
+            .map(|(t_xi, xi)| (t_xi - t_zg2) * (xi - (z * g.square())).inv().unwrap())
             .collect::<Vec<_>>();
 
         // Combine the terms with random weights (betas) from the Verifier.
@@ -373,11 +366,11 @@ impl DeepComposition {
             .zip(&t_z_term_lde)
             .zip(&t_zg_term_lde)
             .zip(&t_zg2_term_lde)
-            .map(|((((h_term, t_z_term), t_zg_term), t_zg2_term))| {
-                h_term * &betas[0]
-                    + t_z_term * &betas[1]
-                    + t_zg_term * &betas[2]
-                    + t_zg2_term * &betas[3]
+            .map(|(((h_term, t_z_term), t_zg_term), t_zg2_term)| {
+                h_term * betas[0]
+                    + t_z_term * betas[1]
+                    + t_zg_term * betas[2]
+                    + t_zg2_term * betas[3]
             })
             .collect::<Vec<_>>();
 
@@ -416,8 +409,8 @@ impl DeepComposition {
         );
 
         // Prover provides evaluations D(x₀), H(x₀), and t(x₀), authenticated by Merkle paths.
-        let deep_x0 = self.deep_poly_lde[x0_index].clone();
-        let h_x0 = composition.composition_poly_lde[x0_index].clone();
+        let deep_x0 = self.deep_poly_lde[x0_index];
+        let h_x0 = composition.composition_poly_lde[x0_index];
         let t_x0 = arithmetization.trace_poly.evaluate(x0);
         println!("  --> Prover to Verifier: Openings at x₀.");
         println!(
@@ -438,15 +431,15 @@ impl DeepComposition {
         let t_zg = arithmetization.trace_poly.evaluate(&(z * g));
         let t_zg2 = arithmetization.trace_poly.evaluate(&(z * g.square()));
 
-        let h_term_recon = (&h_x0 - &h_z) * (x0 - z).inv().unwrap();
-        let t_z_term_recon = (&t_x0 - &t_z) * (x0 - z).inv().unwrap();
-        let t_zg_term_recon = (&t_x0 - &t_zg) * (x0 - (z * g)).inv().unwrap();
-        let t_zg2_term_recon = (&t_x0 - &t_zg2) * (x0 - (z * g.square())).inv().unwrap();
+        let h_term_recon = (h_x0 - h_z) * (x0 - z).inv().unwrap();
+        let t_z_term_recon = (t_x0 - t_z) * (x0 - z).inv().unwrap();
+        let t_zg_term_recon = (t_x0 - t_zg) * (x0 - (z * g)).inv().unwrap();
+        let t_zg2_term_recon = (t_x0 - t_zg2) * (x0 - (z * g.square())).inv().unwrap();
 
-        let deep_x0_reconstructed = &h_term_recon * &betas[0]
-            + &t_z_term_recon * &betas[1]
-            + &t_zg_term_recon * &betas[2]
-            + &t_zg2_term_recon * &betas[3];
+        let deep_x0_reconstructed = h_term_recon * betas[0]
+            + t_z_term_recon * betas[1]
+            + t_zg_term_recon * betas[2]
+            + t_zg2_term_recon * betas[3];
 
         println!(
             "      Reconstructed D(x₀): {}",
