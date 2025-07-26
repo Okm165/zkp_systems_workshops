@@ -48,7 +48,7 @@ impl Prover {
     fn commit_phase(&mut self) -> Result<FriLayer, FriError> {
         println!("[Prover] Phase 1: COMMIT");
         // Evaluate the polynomial on the large domain (LDE).
-        let evaluations = self.poly.evaluate_slice(&self.params.domain_0);
+        let evaluations = self.poly.evaluate_slice(&self.params.domain);
         // Build a Merkle tree from the evaluations to commit to them.
         let merkle_tree = MerkleTree::<FriBackend>::build(&evaluations).ok_or_else(|| {
             FriError::MerkleTreeConstructionError("Failed to build initial Merkle tree".to_string())
@@ -64,7 +64,7 @@ impl Prover {
         Ok(FriLayer {
             evaluations,
             merkle_tree,
-            domain: self.params.domain_0.clone(),
+            domain: self.params.domain.to_owned(),
         })
     }
 
@@ -129,7 +129,7 @@ impl Prover {
         println!("[Prover] Phase 3: QUERY");
         // Sample random indices from the transcript for the queries.
         let query_indices: Vec<usize> = (0..self.params.num_queries)
-            .map(|_| self.sample_index(self.params.domain_0_size))
+            .map(|_| self.sample_index(self.params.domain.len()))
             .collect();
 
         println!(

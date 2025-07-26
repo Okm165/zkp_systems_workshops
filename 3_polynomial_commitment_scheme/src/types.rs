@@ -1,5 +1,6 @@
 use lambdaworks_crypto::merkle_tree::merkle::MerkleTree;
-use lambdaworks_math::field::traits::IsFFTField;
+use lambdaworks_math::fft::cpu::roots_of_unity::get_powers_of_primitive_root;
+use lambdaworks_math::field::traits::RootsConfig;
 
 use crate::{FriBackend, F, FE};
 
@@ -7,11 +8,9 @@ use crate::{FriBackend, F, FE};
 #[derive(Debug, Clone)]
 pub struct FriParameters {
     /// The initial evaluation domain (LDE).
-    pub domain_0: Vec<FE>,
+    pub domain: Vec<FE>,
     /// How many queries the Verifier will make to check the proof.
     pub num_queries: usize,
-    /// The size of the initial evaluation domain.
-    pub domain_0_size: usize,
 }
 
 impl FriParameters {
@@ -26,14 +25,15 @@ impl FriParameters {
         // The Low-Degree Extension (LDE) domain size.
         let domain_size = (claimed_degree + 1) * blowup_factor;
         // The domain is a multiplicative subgroup, so its size must be a power of 2.
-        let root_order = domain_size.trailing_zeros();
-        let generator = F::get_primitive_root_of_unity(root_order as u64).unwrap();
-        let domain_0 = (0..domain_size).map(|i| generator.pow(i)).collect();
+        let root_order = domain_size.trailing_zeros() as u64;
+
+        let domain =
+            get_powers_of_primitive_root::<F>(root_order, domain_size, RootsConfig::Natural)
+                .unwrap();
 
         Self {
-            domain_0,
+            domain,
             num_queries,
-            domain_0_size: domain_size,
         }
     }
 }

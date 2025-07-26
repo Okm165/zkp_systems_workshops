@@ -30,7 +30,7 @@ impl Verifier {
         // Reconstruct the challenges (`betas`) and query indices by replaying the transcript.
         let (betas, query_indices) = self.reconstruct_challenges(proof);
 
-        let root_order = self.params.domain_0_size.trailing_zeros();
+        let root_order = self.params.domain.len().trailing_zeros();
         let generator = F::get_primitive_root_of_unity(root_order as u64).unwrap();
 
         // Verify each query independently.
@@ -75,7 +75,7 @@ impl Verifier {
 
         // Now, sample the query indices. They will be the same as the Prover's.
         let query_indices = (0..proof.query_decommitments.len())
-            .map(|_| self.sample_index(self.params.domain_0_size))
+            .map(|_| self.sample_index(self.params.domain.len()))
             .collect();
 
         println!("[Verifier] Reconstructed challenges and query indices from proof commitments.");
@@ -110,7 +110,7 @@ impl Verifier {
         let mut current_idx = query_idx;
 
         for i in 0..proof.layer_commitments.len() {
-            let domain_size = self.params.domain_0_size >> i;
+            let domain_size = self.params.domain.len() >> i;
             let sym_idx = (current_idx + domain_size / 2) % domain_size;
             let commitment = &proof.layer_commitments[i];
 
@@ -167,7 +167,7 @@ impl Verifier {
             let y_sym = &decommitment.layer_evaluations_sym[i];
 
             // Recompute `x` for the specific query index at this layer's domain size.
-            let domain_size = self.params.domain_0_size >> i;
+            let domain_size = self.params.domain.len() >> i;
             let current_query_idx_in_layer = query_idx % domain_size;
             let g_i = generator.pow(1_u64 << i); // Generator for the i-th domain
             let x = g_i.pow(current_query_idx_in_layer);

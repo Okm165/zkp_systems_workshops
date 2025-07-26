@@ -4,8 +4,10 @@
 // Arithmetization is the process of converting the execution trace into a set of polynomial
 // constraints. If the constraints hold, the computation was performed correctly.
 
-use lambdaworks_math::fft::cpu::roots_of_unity::get_powers_of_primitive_root_coset;
-use lambdaworks_math::field::traits::IsFFTField;
+use lambdaworks_math::fft::cpu::roots_of_unity::{
+    get_powers_of_primitive_root, get_powers_of_primitive_root_coset,
+};
+use lambdaworks_math::field::traits::{IsFFTField, RootsConfig};
 use lambdaworks_math::polynomial::Polynomial;
 
 use crate::{F, FE};
@@ -39,9 +41,12 @@ impl Arithmetization {
 
         // 1. Define the evaluation domain D_TRACE = {g^0, g^1, ..., g^(n-1)}.
         // This domain corresponds to the steps of our computation.
-        let root_order = trace_length.trailing_zeros();
-        let domain_generator = F::get_primitive_root_of_unity(root_order as u64).unwrap();
-        let domain: Vec<FE> = (0..trace_length).map(|i| domain_generator.pow(i)).collect();
+        let root_order = trace_length.trailing_zeros() as u64;
+        let domain_generator = F::get_primitive_root_of_unity(root_order).unwrap();
+
+        let domain =
+            get_powers_of_primitive_root::<F>(root_order, trace_length, RootsConfig::Natural)
+                .unwrap();
 
         // 2. Interpolate the trace over D_TRACE to get the trace polynomial t(x).
         // This creates a single polynomial whose evaluations at the domain points match the trace.
