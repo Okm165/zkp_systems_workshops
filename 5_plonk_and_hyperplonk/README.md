@@ -13,7 +13,7 @@
 
 ## **Part 1: The Plonkish Arithmetization Paradigm**
 
-While Chapter 4 focused on the AIR framework, characterized by uniform transition constraints well-suited for state-machine-like computations, Plonk introduces a more flexible model designed for general arithmetic circuits. It provides a structured approach to arithmetization that has become the foundation for a vast ecosystem of ZKP systems. A key feature of the Plonk framework is its modularity, particularly its compatibility with schemes like KZG that allow for a **universal and updatable trusted setup**. This means a single setup ceremony can be performed to generate parameters usable for _any_ circuit up to a certain size, a significant improvement over the per-circuit setups required by earlier SNARKs like Groth16.
+While Chapter 4 focused on the AIR framework, characterized by uniform transition constraints well-suited for state-machine-like computations, Plonk introduces a more flexible model designed for general arithmetic circuits. It provides a structured approach to arithmetization that has become the foundation for a vast ecosystem of ZKP systems.
 
 ### **1.1 The Universal Gate Constraint**
 
@@ -113,17 +113,6 @@ This section provides a rigorous analysis of the practical trade-offs between th
 | **On-Chain Viability**      | **Excellent.** Low, predictable gas cost.                                                            | **Poor.** Prohibitively high gas cost for large circuits.                                      |
 | **Proof Size**              | **`O(1)` (Constant).** ~0.5-1 KB.                                                                    | **`O(log N)` (Logarithmic).** ~5-10 KB.                                                        |
 | **Custom Gate Flexibility** | **Limited.** High-degree gates increase the degree of the quotient polynomial, raising prover costs. | **High.** The Sum-check protocol is tolerant of high-degree constraints with minimal overhead. |
-
----
-
-## **Part 5: Conclusion**
-
-The Plonk and HyperPlonk families represent a critical axis in ZKP design: the choice between univariate and multivariate representations.
-
-- **Plonk** is a masterpiece of engineering optimized for **verifier efficiency**. Its constant-time verifier and small proof sizes make it the dominant choice for applications requiring public, on-chain verification, such as ZK-Rollups. Its primary practical bottleneck is the prover's computation of MSMs.
-- **HyperPlonk** is a paradigm shift that optimizes for **theoretical prover linearity** and **circuit flexibility**. Its support for high-degree custom gates offers a path to more compact representations for complex computations (e.g., zkEVMs). However, this comes at the steep price of a logarithmic verifier and a prover whose linear-time performance is constrained by memory bandwidth rather than pure computation.
-
-The evolution from Plonk to HyperPlonk, and the subsequent development of hybrid systems (like Plonky2, which combines Plonkish arithmetization with the FRI commitment scheme from Chapter 3), illustrates a mature and dynamic field. The future of ZKP systems lies not in a single "best" protocol, but in a rich ecosystem where designers can select and combine architectural components to best suit the specific trade-offs demanded by their application.
 
 ---
 
