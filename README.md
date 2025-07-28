@@ -25,7 +25,11 @@ The course is structured as a series of chapters, each building on the last.
   - **Description:** This chapter introduces Polynomial Commitment Schemes (PCS) as a foundational cryptographic primitive essential for modern Zero-Knowledge Proof (ZKP) systems. We will define a PCS and its core properties—binding, succinctness, and evaluation proofs—and explore its role in translating computational integrity claims into verifiable algebraic statements
 
 - ### [Chapter 4: Algebraic Intermediate Representation (AIR) and Constraint Design](./4_air_constraints_design/README.md)
+
   - **Description:** This chapter introduces the Algebraic Intermediate Representation (AIR), the framework for converting computational claims into polynomial constraints. We detail the process of arithmetization by designing boundary and transition constraints, unifying them into a composition polynomial, and demonstrating how out-of-domain checks and the DEEP composition polynomial work together to ensure the integrity of a STARK proof.
+
+- ### [Chapter 5: Plonkish Arithmetization and the Shift to Multivariate Systems](./5_plonk_and_hyperplonk/README.md)
+  - **Description:** This chapter introduces Plonkish arithmetization as a major alternative to AIRs. We deconstruct the universal gate, the permutation argument for copy constraints, and the resulting univariate PIOP. We then explore the evolution to multivariate systems like HyperPlonk, which trade quotient checks for the Sum-check protocol, and conclude with a analysis of the performance trade-offs between these two paradigms.
 
 ---
 

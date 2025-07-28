@@ -1,0 +1,7 @@
+[package]
+name = "plonk_and_hyperplonk"
+edition.workspace = true
+version.workspace = true
+readme.workspace = true
+
+[dependencies]

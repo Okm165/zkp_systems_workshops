@@ -2,7 +2,10 @@
 members = [
     "0_zkp_architecture",
     "1_mathematical_toolkit",
-    "2_fast_polynomial_arithmetic", "3_polynomial_commitment_scheme", "4_air_constraints_design",
+    "2_fast_polynomial_arithmetic",
+    "3_polynomial_commitment_scheme",
+    "4_air_constraints_design",
+    "5_plonk_and_hyperplonk",
 ]
 resolver = "3"
 

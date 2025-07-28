@@ -174,4 +174,8 @@ The STARK protocol is a sequence of elegant reductions. A complex computational 
 
 ---
 
+### [Chapter 5: Plonkish Arithmetization and the Shift to Multivariate Systems](./5_plonk_and_hyperplonk/README.md)
+
+---
+
 **Author:** [Okm165](https://github.com/Okm165) | [@bartolomeo_diaz](https://x.com/bartolomeo_diaz)
