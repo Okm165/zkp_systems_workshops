@@ -104,22 +104,13 @@ The security of FRI is not absolute but **probabilistic**. A dishonest Prover ha
 
 The formal argument for FRI's soundness relies on the **Proximity Gap Theorem**, which informally states that if a function is "far" from the set of low-degree polynomials, the randomly folded function will also be "far" from the set of halved-degree polynomials. This guarantees that "farness" (i.e., cheating) is propagated through the rounds and will be detected at the final check, causing the Verifier to reject.
 
-#### **3.2 The Power of Transparency**
-
-As established, FRI's transparency is a compelling feature. By obviating the need for a trusted setup, it provides key advantages:
-
-- **Trust Minimization:** It removes the need to trust participants of a setup ceremony, making the system more secure.
-- **Reduced Complexity:** It eliminates the logistical and security challenges of executing a secure setup ceremony.
-- **Permissionless Participation:** Anyone can become a Prover or Verifier using only public information.
-- **Plausible Post-Quantum Security:** By relying on hash functions, FRI offers stronger long-term security against future quantum computers.
-
-#### **3.3 Making FRI Non-Interactive: The Fiat-Shamir Heuristic**
+#### **3.2 Making FRI Non-Interactive: The Fiat-Shamir Heuristic**
 
 In its natural form, FRI is an **interactive** protocol. For many applications, like posting a proof to a blockchain, this is impractical. The **Fiat-Shamir heuristic** transforms it into a non-interactive proof by replacing the Verifier's random challenges with the output of a cryptographic hash function.
 
 Instead of waiting for a random `βᵢ` from the Verifier, the Prover computes it themselves by hashing the public transcript up to that point (e.g., `βᵢ = Hash(rootᵢ₋₁)`). Because the hash output is unpredictable, the hash function acts as a "random oracle" that the Prover cannot game. This allows the Prover to generate the entire proof as a single string of data that can be verified by anyone at any time.
 
-#### **3.4 Performance Considerations**
+#### **3.3 Performance Considerations**
 
 While powerful, FRI comes with a primary performance trade-off: **proof size**. The proof must contain Merkle paths for each query across multiple rounds, causing the proof size to scale polylogarithmically with the size of the computation. This is larger than the constant-size proofs of schemes like KZG. This trade-off between transparency and post-quantum security on one hand, and proof size on the other, is a central consideration in the design of modern ZKP systems.
 
