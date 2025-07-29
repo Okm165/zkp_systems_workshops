@@ -1,13 +1,12 @@
 # **Chapter 5: Plonkish Arithmetization and the Shift to Multivariate Systems**
 
-**Abstract:** This chapter introduces Plonkish arithmetization, a powerful and widely adopted alternative to the AIR framework discussed previously. We will deconstruct the core components of the Plonk protocol, including its universal gate constraint and the elegant permutation argument used to enforce wire consistency. The chapter provides a mathematical breakdown of these mechanisms.
+**Abstract:** This chapter introduces Plonkish arithmetization, a powerful and widely adopted alternative to the AIR framework discussed previously. We will deconstruct the core components of the Plonk protocol, including its universal gate constraint and the elegant permutation argument used to enforce wire consistency. The chapter provides a rigorous mathematical breakdown of these mechanisms and analyzes the practical efficiency of the resulting univariate PIOP. We then explore the evolution of this paradigm with HyperPlonk, a system that fundamentally shifts from univariate polynomials over multiplicative subgroups to Multi-Linear Extensions (MLEs) over the Boolean hypercube. This transition, motivated by the pursuit of a linear-time prover, replaces the FFT and quotient checks of Plonk with the Sum-check protocol.
 
 **Learning Objectives:** Upon completion of this chapter, you will be able to:
 
 1.  Describe the structure of Plonkish arithmetization, including the universal gate and selector polynomials.
-2.  Formally explain the permutation argument, detailing how the accumulator polynomial `$Z(X)$` enforces copy constraints.
-3.  Analyze the prover's workload in Plonk, differentiating between the costs of NTTs and MSMs.
-4.  Define the architectural shift from univariate (Plonk) to multivariate (HyperPlonk) systems, including the roles of MLEs and the Sum-check protocol.
+2.  Formally explain the permutation argument, detailing how the accumulator polynomial $Z(X)$ enforces copy constraints.
+3.  Define the architectural shift from univariate (Plonk) to multivariate (HyperPlonk) systems, including the roles of MLEs and the Sum-check protocol.
 
 ---
 
@@ -17,102 +16,148 @@ While Chapter 4 focused on the AIR framework, characterized by uniform transitio
 
 ### **1.1 The Universal Gate Constraint**
 
-Plonk's core innovation is a single, universal polynomial equation that can express any standard arithmetic gate. For each gate `$i$` in a circuit, this constraint enforces the relationship between its left (`$a_i$`), right (`$b_i$`), and output (`$c_i$`) wire values.
+Plonk's core innovation is a single, universal polynomial equation that can express any standard arithmetic gate. For each gate $i$ in a circuit, this constraint enforces the relationship between its left ($a_i$), right ($b_i$), and output ($c_i$) wire values.
 
-**Definition (Universal Gate Constraint).** For each gate `$i \in \{0, \dots, n-1\}$`, the constraint is:
+**Definition (Universal Gate Constraint).** For each gate $i \in \{0, \dots, n-1\}$, the constraint is:
 
 $$
+\begin{align*}
 q_{L,i} a_{i} + q_{R,i} b_{i} + q_{M,i} a_{i} b_{i} + q_{O,i} c_{i} + q_{C,i} = 0
+\end{align*}
 $$
 
-- The `$q_{\bullet,i}$` values are **selector constants**. By enabling or disabling them, this single formula can be configured to represent:
-  - **Addition (`$a_{i} + b_{i} = c_{i}`$):** Set `$q_{L,i}=1, q_{R,i}=1, q_{O,i}=-1$`.
-  - **Multiplication (`$a_{i} \cdot b_{i} = c_{i}`$):** Set `$q_{M,i}=1, q_{O,i}=-1$`.
-  - **Public Constant (`$a_{i} = k$`):** Set `$q_{L,i}=1, q_{C,i}=-k$`.
+- The $q_{\bullet,i}$ values are **selector constants**. By enabling or disabling them, this single formula can be configured to represent different operations.
 
 ### **1.2 From Gates to a Single Polynomial Identity**
 
-To create a single, succinct proof, these `$n$` individual gate constraints are unified into one algebraic assertion.
+To create a single, succinct proof, these $n$ individual gate constraints are unified into one algebraic assertion. This is done by interpolating the wire and selector values into polynomials over a multiplicative subgroup $H = \{\omega^{0}, \dots, \omega^{n-1}\}$ of a finite field $\mathbb{F}$.
 
-1.  **Define the Domain:** We select a multiplicative subgroup `$H = \{\omega^{0}, \omega^{1}, \dots, \omega^{n-1}\}$` of a finite field `$\mathbb{F}$`, where `$\omega$` is a primitive n-th root of unity. Each point `$\omega^{i}$` corresponds to the `$i$`-th gate.
-2.  **Interpolate:** The wire values (`$a$`, `$b$`, `$c$`) and selector values (`$q_L$`, `$q_M$`, etc.) are interpolated into polynomials `$a(X), b(X), c(X)$` and `$q_L(X), q_M(X), \dots$` respectively. This is practically achieved with the `$O(N \log N)$` INTT algorithm.
-
-**Theorem (Gate Constraint Polynomial Identity).** The `$n$` gate constraints are satisfied if and only if there exists a **quotient polynomial `$t(X)$`** such that the following identity holds for all `$X$`:
+**Theorem (Gate Constraint Polynomial Identity).** The $n$ gate constraints are satisfied if and only if there exists a **quotient polynomial $t(X)$** such that the following identity holds:
 
 $$
+\begin{align*}
 a(X)q_L(X) + b(X)q_R(X) + a(X)b(X)q_M(X) + c(X)q_O(X) + q_C(X) = Z_H(X) \cdot t(X)
+\end{align*}
 $$
 
-Here, `$Z_H(X) = X^n - 1$` is the **vanishing polynomial** of the domain `$H$`. The existence of `$t(X)$` proves that the left-hand side is zero at every point in `$H$`.
+Here, $Z_H(X) = X^n - 1$ is the **vanishing polynomial** of the domain $H$.
 
 ---
 
-## **Part 2: The Permutation Argument for Wire Consistency**
+## **Part 2: The Permutation Argument for Wire Consistency (Expanded)**
 
-The gate constraint identity ensures local correctness but does not enforce the connections _between_ gates (i.e., that the output of one gate is the input to another). Plonk solves this "wiring problem" with its celebrated **permutation argument**.
+The gate constraint identity from Part 1 is a necessary but insufficient condition for a valid proof. It confirms local correctness but fails to enforce the connections _between_ gates. This section provides a detailed, step-by-step deconstruction of Plonk's solution: the permutation argument.
 
-### **2.1 The Grand Product Check**
+### **2.1 The Core Problem: Wire Consistency**
 
-The core idea is to prove that the set of all `$3n$` wire values is a permutation of itself according to the circuit's wiring diagram.
+Consider a simple computation: $out = (in₁ + in₂) \cdot in₃$. A malicious prover could satisfy the local gate constraints using two different values for the intermediate result ($v_1 \neq v_1'), proving an invalid statement. The set of all required equalities ($c_i = a_j$, etc.) are called **copy constraints**.
 
-1.  **Define Permutation Polynomials:** The wiring is encoded into pre-computed **permutation polynomials** `$S_{\sigma,1}(X), S_{\sigma,2}(X), S_{\sigma,3}(X)$`. For a wire at gate `$i$` in column `$j$`, `$S_{\sigma,j}(\omega^{i})$` evaluates to the unique global identity of the wire it is connected to.
-2.  **Randomized Binding:** The verifier provides random challenges `$\beta$` and `$\gamma$`. These are used to "bind" each wire's value to its unique identity, preventing fraudulent swaps.
-3.  **The Accumulator `$Z(X)$`:** Instead of checking a massive product directly, Plonk uses a recursive **accumulator polynomial `$Z(X)$`**. This polynomial is constrained by two identities that must hold over `$H$`:
-    - **Start Condition:** The accumulator must start at 1. `$L_1(X)$` is the first Lagrange polynomial.
-      $$
-      L_1(X) \cdot (Z(X) - 1) = 0
-      $$
-    - **Recursive Step:** The core logic. `$Z(X\omega)$` must equal `$Z(X)$` multiplied by the ratio of the randomized "permuted" wire values to the "original" wire values. This is rearranged to form a polynomial constraint:
-      $$
-      Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) = 0
-      $$
-      The prover must demonstrate that this polynomial, along with the start condition polynomial, is also divisible by `$Z_H(X)$`.
+### **2.2 The High-Level Idea: A Permutation Check**
+
+The circuit's wiring diagram defines a specific **permutation**, $\sigma$, on the _positions_ of all $3n$ wires. If all copy constraints are satisfied, then reordering the _values_ according to this permutation $\sigma$ should result in an identical collection of values.
+
+### **2.3 The Tool: Checking Multiset Equality with a Grand Product**
+
+To check if two multisets $\{f_i\}$ and $\{g_i\}$ are equal, we check a randomized product identity. For a random challenge $\gamma$, the sets are equal if and only if:
+
+$$
+\begin{align*}
+\prod_{i=1}^{k} (f_i + \gamma) = \prod_{i=1}^{k} (g_i + \gamma)
+\end{align*}
+$$
+
+This is the **grand product check**. To enforce a specific permutation and prevent fraudulent swaps, we enhance this check with another random challenge, $\beta$, which binds each wire's value to its unique identity.
+
+### **2.4 The Formal Grand Product Identity of Plonk**
+
+The prover must demonstrate that the multiset of randomized wire values is invariant when we swap the wire identities ($S_{id,j}$) with the permuted wire identities ($S_{\sigma,j}$).
+
+$$
+\begin{align*}
+\prod_{i=0}^{n-1} \prod_{j=1}^{3} (w_j(\omega^i) + \beta S_{id,j}(\omega^i) + \gamma) = \prod_{i=0}^{n-1} \prod_{j=1}^{3} (w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)
+\end{align*}
+$$
+
+### **2.5 The Accumulator $Z(X)$: Efficient Verification**
+
+Computing the two giant products is inefficient. Instead, we check that their ratio is 1 by building the ratio step-by-step using a recursive **accumulator polynomial, $Z(X)$**.
+
+1.  **Recursive Relation:** We define $Z(X)$ such that it starts at 1 ($Z(\omega^0)=1$) and is updated at each step:
+    $$
+    \begin{align*}
+    Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{id,j}(\omega^i) + \gamma)}
+    \end{align*}
+    $$
+2.  **Final Condition:** If the grand product identity holds, the accumulator must return to its starting value: $Z(\omega^n) = 1$.
+
+### **2.6 Finalizing the Polynomial Constraints**
+
+These conditions on $Z(X)$ are converted into polynomial constraints that must be divisible by $Z_H(X)$:
+
+- **Start Constraint:** $L_1(X) \cdot (Z(X) - 1) = 0$, where $L_1(X)$ is the first Lagrange polynomial.
+- **Recursive Step Constraint:**
+  $$
+    \begin{align*}
+    Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) = 0
+    \end{align*}
+  $$
+  These two new constraints are bundled with the gate constraints into the final quotient polynomial t(X).
 
 ---
 
-## **Part 3: The Shift to Multivariate Systems - HyperPlonk**
+## **Part 3: The Shift to Multivariate Systems - HyperPlonk (Expanded)**
 
-HyperPlonk was designed to address a perceived bottleneck in Plonk: the `$O(N \log N)$` complexity of the FFT. It achieves this by fundamentally changing the underlying mathematical representation of the proof.
+HyperPlonk was designed to attack the theoretical $O(N \log N)$ complexity of the FFT. To achieve this, it reimagines the two pillars of Plonk's arithmetization: its **domain** and its **polynomial representation**.
 
-### **3.1 From Univariate to Multi-Linear Extensions (MLEs)**
+### **3.1 Step 1: A New Domain - The Boolean Hypercube**
 
-The core architectural shift is from univariate polynomials over multiplicative subgroups to **Multi-Linear Extensions (MLEs)** over the **Boolean hypercube**.
+To eliminate the FFT, HyperPlonk chooses the **Boolean hypercube**, $\{0,1\}^v$, where $N=2^v$. The execution trace is re-indexed so that the value at gate $i$ corresponds to the value at the vertex represented by the binary form of $i$.
 
-**Definition (Multi-Linear Extension, MLE).** For a function `$f: \{0,1\}^v \to \mathbb{F}$`, its unique MLE `$\tilde{f}$` is the `$v$`-variate polynomial of degree 1 in each variable that agrees with `$f$` on all `$2^v$` points of the Boolean hypercube `$\{0,1\}^v$`.
+### **3.2 Step 2: A New Representation - Multi-Linear Extensions (MLEs)**
+
+A univariate polynomial is no longer a natural fit. We need a polynomial in $v$ variables. HyperPlonk uses a specific, highly structured type: the **Multi-Linear Extension (MLE)**.
+
+**Definition (Multi-Linear Extension, MLE).** For a function $f: \{0,1\}^v \to \mathbb{F}$, its unique MLE $\tilde{f}$ is the $v$-variate polynomial of degree 1 in each variable that agrees with $f$ on all $2^v$ points of the Boolean hypercube $\{0,1\}^v$.
 
 $$
+\begin{align*}
 \tilde{f}(X_1, \dots, X_v) = \sum_{w \in \{0,1\}^v} f(w) \cdot \prod_{i=1}^{v} (X_i w_i + (1-X_i)(1-w_i))
+\end{align*}
 $$
 
-### **3.2 From Quotients to the Sum-check Protocol**
+The product term, $\text{eq}(X, w)$, acts as a selector that is 1 only when the input $X$ equals the corner $w$.
 
-This change of representation makes the quotient-based checks of Plonk inapplicable. HyperPlonk replaces them with the **Sum-check protocol**, an interactive protocol that allows a prover to convince a verifier of the value of a sum `$S = \sum_{x \in \{0,1\}^v} g(x)$` with `$O(\log N)$` verifier complexity.
+### **3.3 Step 3: A New Tool - The Sum-check Protocol**
 
-- **Gate Constraints via ZeroCheck:** To prove a constraint `$C(X) = 0$` holds over the hypercube, the verifier sends a random point `$r$`, and the prover uses Sum-check to prove:
-  $$
-  \sum_{x \in \{0,1\}^v} C(x) \cdot \text{eq}(x, r) = 0
-  $$
-  This reduces the check to `$C(r)=0$`, which implies `$C(X)$` is the zero polynomial with high probability.
-- **Permutation Constraints via Log-Derivative:** The permutation argument is transformed into a sum that must equal zero, which is then verified with Sum-check. For a random challenge `$\gamma$`:
-  $$
-  \sum_{x \in \{0,1\}^v} \left( \frac{1}{\tilde{f}(x) + \gamma} - \frac{1}{\tilde{g}(x) + \gamma} \right) = 0
-  $$
+This new representation makes Plonk's quotient checks inapplicable. HyperPlonk introduces the **Sum-check protocol**, an efficient interactive protocol to prove the value of a sum $S = \sum_{x \in \{0,1\}^v} g(x)$ with only $O(\log N)$ verifier work.
 
----
+### **3.4 Applying the Tool: Constraint Verification**
 
-## **Part 4: Comparative Analysis: Plonk vs. HyperPlonk**
+All of HyperPlonk's constraint checks are reduced to problems that the Sum-check protocol can solve.
 
-This section provides a rigorous analysis of the practical trade-offs between the two systems.
+#### **Gate Constraints via ZeroCheck**
 
-| Feature                     | Plonk (Univariate)                                                                                   | HyperPlonk (Multivariate)                                                                      |
-| :-------------------------- | :--------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| **Prover Complexity**       | `$O(N \log N)`                                                                                       | `$O(N)`                                                                                        |
-| **Practical Bottleneck**    | **Compute-bound.** Dominated by `$O(N)$` expensive MSMs, not the `$O(N \log N)$` NTT.                | **Memory-bound.** Dominated by the serial, high-memory-traffic Sum-check protocol.             |
-| **Hardware Friendliness**   | **High.** NTTs are highly parallelizable and well-optimized in hardware.                             | **Low.** The serial nature of Sum-check is difficult to accelerate effectively.                |
-| **Verifier Complexity**     | **`$O(1)` (Constant).** Requires 2 pairings.                                                         | **`$O(\log N)` (Logarithmic).** Requires `$\log N$` pairings.                                  |
-| **On-Chain Viability**      | **Excellent.** Low, predictable gas cost.                                                            | **Poor.** Prohibitively high gas cost for large circuits.                                      |
-| **Proof Size**              | **`$O(1)` (Constant).** ~0.5-1 KB.                                                                   | **`$O(\log N)` (Logarithmic).** ~5-10 KB.                                                      |
-| **Custom Gate Flexibility** | **Limited.** High-degree gates increase the degree of the quotient polynomial, raising prover costs. | **High.** The Sum-check protocol is tolerant of high-degree constraints with minimal overhead. |
+To prove a constraint $C(X)$ is zero on all $2^v$ points, the verifier sends a random point $r$, and the prover uses Sum-check to prove:
+
+$$
+\begin{align*}
+\sum_{x \in \{0,1\}^v} C(x) \cdot \text{eq}(x, r) = 0
+\end{align*}
+$$
+
+Since $\text{eq}(x, r)$ isolates the term $C(r)$, this is equivalent to proving $C(r)=0$.
+
+#### **Permutation Constraints via Log-Derivative**
+
+To adapt Plonk's grand product check into a sum, the prover uses Sum-check to prove the following sum is zero for a random $\gamma$:
+
+$$
+\begin{align*}
+\sum_{x \in \{0,1\}^v} \left( \frac{1}{\tilde{f}(x) + \gamma} - \frac{1}{\tilde{g}(x) + \gamma} \right) = 0
+\end{align*}
+$$
+
+Here, $\tilde{f}$ represents the original randomized wire values and $\tilde{g}$ the permuted ones.
 
 ---
 
