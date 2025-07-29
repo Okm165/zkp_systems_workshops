@@ -92,15 +92,17 @@ This identity holds if and only if all copy constraints are satisfied. If even o
 
 Computing two giant products of $3n$ terms is inefficient. Plonk uses a clever trick to check this identity recursively. The equality of the two grand products is equivalent to their ratio being 1. We can build this ratio step-by-step using an **accumulator polynomial, $Z(X)$**.
 
-1.  **Define a Recursive Relation:** We define $Z(X)$ such that it starts at 1 and, at each step `i`, it is multiplied by the ratio of that step's contribution to the two products.
-    _ **Start:** $Z(\omega^0) = 1$
-    _ **Recurrence:** For $i = 0, \dots, n-1$:
-    $$
-    \begin{align*}
-    Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{id,j}(\omega^i) + \gamma)}
-    \end{align*}
-    $$
-2.  **Final Condition:** If the grand product identity holds, the product of all the numerators will equal the product of all the denominators over the full cycle. Therefore, the accumulator must return to its starting value: $Z(\omega^n) = Z(\omega^0) = 1$.
+**Define a Recursive Relation:** We define $Z(X)$ such that it starts at 1 and, at each step `i`, it is multiplied by the ratio of that step's contribution to the two products.
+**Start:** $Z(\omega^0) = 1$
+**Recurrence:** For $i = 0, \dots, n-1$:
+
+$$
+\begin{align*}
+Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{id,j}(\omega^i) + \gamma)}
+\end{align*}
+$$
+
+**Final Condition:** If the grand product identity holds, the product of all the numerators will equal the product of all the denominators over the full cycle. Therefore, the accumulator must return to its starting value: $Z(\omega^n) = Z(\omega^0) = 1$.
 
 ### **2.6 Finalizing the Polynomial Constraints: From Recurrence to Polynomials**
 
@@ -108,29 +110,33 @@ This is the crucial conceptual leap. The conditions on $Z(X)$ are defined at dis
 
 #### **Constraint 1: The Starting Value**
 
-- **The Condition:** We need $Z(\omega^0) = 1$.
-- **The Polynomial Equivalent:** This is equivalent to saying that the polynomial $Z(X) - 1$ must have a root at $X = \omega^0$.
-- **Enforcing the Constraint:** To enforce this without affecting other points, we multiply by the first Lagrange basis polynomial, $L_1(X)$, which is `1` at $\omega^0$ and `0` at all other points in $H$. This gives us our first constraint polynomial, which must be zero on all of $H$:
-  $$
-  \begin{align*}
-  L_1(X) \cdot (Z(X) - 1) = 0, \quad \forall X \in H
-  \end{align*}
-  $$
+**The Condition:** We need $Z(\omega^0) = 1$.
+**The Polynomial Equivalent:** This is equivalent to saying that the polynomial $Z(X) - 1$ must have a root at $X = \omega^0$.
+**Enforcing the Constraint:** To enforce this without affecting other points, we multiply by the first Lagrange basis polynomial, $L_1(X)$, which is `1` at $\omega^0$ and `0` at all other points in $H$. This gives us our first constraint polynomial, which must be zero on all of $H$:
+
+$$
+\begin{align*}
+L_1(X) \cdot (Z(X) - 1) = 0, \quad \forall X \in H
+\end{align*}
+$$
 
 #### **Constraint 2: The Recursive Step**
 
-- **The Condition:** For each $i \in \{0, \dots, n-2\}$, the recurrence relation must hold. Let's first rearrange the recurrence algebraically to eliminate the fraction:
-  $Z(\omega^{i+1}) \cdot (\text{denominator at } i) = Z(\omega^i) \cdot (\text{numerator at } i)$
-- **The Polynomial Equivalent:** Now we "lift" this discrete relation into the world of polynomials.
-  - The value at the "current" step $i$, like $Z(\omega^i)$, is simply the polynomial $Z(X)$ evaluated at $X=\omega^i$.
-  - The value at the "next" step, $Z(\omega^{i+1})$, can be represented by evaluating the same polynomial $Z(X)$ at the "next" point in the domain, which is $X \cdot \omega$. So, $Z(\omega^{i+1})$ is represented by $Z(X\omega)$.
-- **Enforcing the Constraint:** By substituting the polynomials for their evaluations, we get a single polynomial equation that must hold for all $X \in H$ (except the very last point, which is handled by a small adjustment not detailed here). This is our second constraint polynomial:
-  $$
-  \begin{align*}
-  Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) = 0, \quad \forall X \in H
-  \end{align*}
-  $$
-        *Notice the terms are swapped compared to the fraction: the denominator from the recurrence is now multiplied by $Z(X\omega)$, and the numerator is multiplied by $Z(X)$.*
+**The Condition:** For each $i \in \{0, \dots, n-2\}$, the recurrence relation must hold. Let's first rearrange the recurrence algebraically to eliminate the fraction:
+$Z(\omega^{i+1}) \cdot (\text{denominator at } i) = Z(\omega^i) \cdot (\text{numerator at } i)$
+**The Polynomial Equivalent:** Now we "lift" this discrete relation into the world of polynomials.
+
+The value at the "current" step $i$, like $Z(\omega^i)$, is simply the polynomial $Z(X)$ evaluated at $X=\omega^i$.
+The value at the "next" step, $Z(\omega^{i+1})$, can be represented by evaluating the same polynomial $Z(X)$ at the "next" point in the domain, which is $X \cdot \omega$. So, $Z(\omega^{i+1})$ is represented by $Z(X\omega)$.
+**Enforcing the Constraint:** By substituting the polynomials for their evaluations, we get a single polynomial equation that must hold for all $X \in H$ (except the very last point, which is handled by a small adjustment not detailed here). This is our second constraint polynomial:
+
+$$
+\begin{align*}
+Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) = 0, \quad \forall X \in H
+\end{align*}
+$$
+
+_Notice the terms are swapped compared to the fraction: the denominator from the recurrence is now multiplied by $Z(X\omega)$, and the numerator is multiplied by $Z(X)$._
 
 These two new polynomial constraints, which must be divisible by $Z_H(X)$, now perfectly capture the logic of the accumulator. They are bundled with the gate constraints using random challenges into the final, single quotient polynomial $t(X)$. This elegant construction transforms a complex, global graph property (circuit wiring) into a set of local, algebraic polynomial constraints.
 
