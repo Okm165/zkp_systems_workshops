@@ -48,15 +48,11 @@ Here, $Z_H(X) = X^n - 1$ is the **vanishing polynomial** of the domain $H$.
 
 The gate constraint identity from Part 1 is a necessary but insufficient condition for a valid proof. It confirms local correctness but fails to enforce the connections _between_ gates. This section provides a detailed, step-by-step deconstruction of Plonk's solution: the permutation argument.
 
-### **2.1 The Core Problem: Wire Consistency**
-
-Consider a simple computation: $out = (in₁ + in₂) \cdot in₃$. A malicious prover could satisfy the local gate constraints using two different values for the intermediate result ($v_1 \neq v_1'), proving an invalid statement. The set of all required equalities ($c_i = a_j$, etc.) are called **copy constraints**.
-
-### **2.2 The High-Level Idea: A Permutation Check**
+### **2.1 The High-Level Idea: A Permutation Check**
 
 The circuit's wiring diagram defines a specific **permutation**, $\sigma$, on the _positions_ of all $3n$ wires. If all copy constraints are satisfied, then reordering the _values_ according to this permutation $\sigma$ should result in an identical collection of values.
 
-### **2.3 The Tool: Checking Multiset Equality with a Grand Product**
+### **2.2 The Tool: Checking Multiset Equality with a Grand Product**
 
 To check if two multisets $\{f_i\}$ and $\{g_i\}$ are equal, we check a randomized product identity. For a random challenge $\gamma$, the sets are equal if and only if:
 
@@ -68,7 +64,7 @@ $$
 
 This is the **grand product check**. To enforce a specific permutation and prevent fraudulent swaps, we enhance this check with another random challenge, $\beta$, which binds each wire's value to its unique identity.
 
-### **2.4 The Formal Grand Product Identity of Plonk**
+### **2.3 The Formal Grand Product Identity of Plonk**
 
 The prover must demonstrate that the multiset of randomized wire values is invariant when we swap the wire identities ($S_{id,j}$) with the permuted wire identities ($S_{\sigma,j}$).
 
@@ -78,19 +74,19 @@ $$
 \end{align*}
 $$
 
-### **2.5 The Accumulator $Z(X)$: Efficient Verification**
+### **2.4 The Accumulator $Z(X)$: Efficient Verification**
 
 Computing the two giant products is inefficient. Instead, we check that their ratio is 1 by building the ratio step-by-step using a recursive **accumulator polynomial, $Z(X)$**.
 
 1.  **Recursive Relation:** We define $Z(X)$ such that it starts at 1 ($Z(\omega^0)=1$) and is updated at each step:
     $$
-    \begin{align*}
-    Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{id,j}(\omega^i) + \gamma)}
-    \end{align*}
+      \begin{align*}
+      Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta {id,j}(\omega^i) + \gamma)}
+      \end{align*}
     $$
 2.  **Final Condition:** If the grand product identity holds, the accumulator must return to its starting value: $Z(\omega^n) = 1$.
 
-### **2.6 Finalizing the Polynomial Constraints**
+### **2.5 Finalizing the Polynomial Constraints**
 
 These conditions on $Z(X)$ are converted into polynomial constraints that must be divisible by $Z_H(X)$:
 
