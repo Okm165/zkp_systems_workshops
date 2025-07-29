@@ -79,11 +79,11 @@ $$
 Computing the two giant products is inefficient. Instead, we check that their ratio is 1 by building the ratio step-by-step using a recursive **accumulator polynomial, $Z(X)$**.
 
 1.  **Recursive Relation:** We define $Z(X)$ such that it starts at 1 ($Z(\omega^0)=1$) and is updated at each step:
-$$
-\begin{align*}
-Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta {id,j}(\omega^i) + \gamma)}
-\end{align*}
-$$
+    ```math
+      \begin{align*}
+      Z(\omega^{i+1}) = Z(\omega^i) \cdot \frac{\prod_{j=1}^{3}(w_j(\omega^i) + \beta S_{\sigma,j}(\omega^i) + \gamma)}{\prod_{j=1}^{3}(w_j(\omega^i) + \beta {id,j}(\omega^i) + \gamma)}
+      \end{align*}
+    ```
 2.  **Final Condition:** If the grand product identity holds, the accumulator must return to its starting value: $Z(\omega^n) = 1$.
 
 ### **2.5 Finalizing the Polynomial Constraints**
@@ -92,11 +92,11 @@ These conditions on $Z(X)$ are converted into polynomial constraints that must b
 
 - **Start Constraint:** $L_1(X) \cdot (Z(X) - 1) = 0$, where $L_1(X)$ is the first Lagrange polynomial.
 - **Recursive Step Constraint:**
-$$
-\begin{align*}
-Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) = 0
-\end{align*}
-$$
+  ```math
+    \begin{align*}
+    Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=1}^{3}(w_j(X) + \beta S_{\sigma,j}(X) + \gamma) = 0
+    \end{align*}
+  ```
   These two new constraints are bundled with the gate constraints into the final quotient polynomial t(X).
 
 ---
