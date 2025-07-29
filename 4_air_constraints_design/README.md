@@ -7,7 +7,7 @@
 - Explain the role of an execution trace and an AIR in converting a computational claim into a verifiable algebraic statement.
 - Design and formulate boundary and transition constraints for a given state transition function using polynomials.
 - Construct a composition polynomial to probabilistically unify multiple constraints into a single low-degree assertion.
-- Articulate why an out-of-domain check is essential for soundness and how the DEEP composition polynomial is used to batch-verify evaluation proofs.
+- Explain why an out-of-domain check is essential for soundness and how the DEEP composition polynomial is used to batch-verify evaluation proofs.
 - Describe the final verification step that connects the DEEP proof back to the original trace and composition polynomial commitments.
 
 ---
@@ -120,14 +120,14 @@ A crucial step is to ensure that the polynomial $H(x)$ the prover commits to is 
 >
 > A cheating prover could commit to completely unrelated polynomials for $t(x)$ and $H(x)$, and this check would still pass trivially. It reveals nothing about the relationship between the committed polynomials and is easily spoofed.
 
-The solution is the **out-of-domain check**. The verifier chooses a random point z from F that is _not_ in the trace domain D_S. This ensures that the zerofier denominators in B(z) and C(z) are non-zero. The verifier then challenges the prover to provide the evaluations needed to compute H(z):
+The solution is the **out-of-domain check**. The verifier chooses a random point $z$ from $F$ that is _not_ in the trace domain $D_S$. This ensures that the zerofier denominators in $B(z)$ and $C(z)$ are non-zero. The verifier then challenges the prover to provide the evaluations needed to compute $H(z)$:
 
 - $H(z)$
 - $t(z)$
 - $t(z \cdot g)$
 - $t(z \cdot g^2)$
 
-The verifier uses the provided trace evaluations to locally compute what $H(z)$ _should_ be and compares it to the value supplied by the prover. By the Schwartz-Zippel Lemma, if this check passes for a random z, it is highly probable that the prover's committed $H(x)$ and $t(x)$ are related by the correct formula _as polynomials_, not just at a few specific points.
+The verifier uses the provided trace evaluations to locally compute what $H(z)$ _should_ be and compares it to the value supplied by the prover. By the Schwartz-Zippel Lemma, if this check passes for a random $z$, it is highly probable that the prover's committed $H(x)$ and $t(x)$ are related by the correct formula _as polynomials_, not just at a few specific points.
 
 This, however, introduces a new set of claims. The verifier has received these evaluations, but has no guarantee they are authentic. The prover must now prove that the values they sent are genuine evaluations of the polynomials they initially committed to.
 
@@ -137,7 +137,7 @@ This, however, introduces a new set of claims. The verifier has received these e
 
 The prover must now substantiate multiple claims simultaneously:
 
-1.  **The Main Claim:** H(x) is a low-degree polynomial.
+1.  **The Main Claim:** $H(x)$ is a low-degree polynomial.
 2.  **The Opening Claims:** The provided evaluations $H(z), t(z), t(z \cdot g), t(z \cdot g^2)$ are correct.
 
 Proving that an evaluation $P(z) = y$ is correct for a committed polynomial $P(x)$ is equivalent to proving that the quotient $\frac{P(x) - y}{x - z}$ is a low-degree polynomial. Performing a separate FRI proof for each of these claims would be highly inefficient.
@@ -150,21 +150,21 @@ $$
 \end{align*}
 $$
 
-The prover then executes a single FRI protocol to prove that Deep(x) is a low-degree polynomial.
+The prover then executes a single FRI protocol to prove that $Deep(x)$ is a low-degree polynomial.
 
-> #### Deep Dive: The Final Link - The Deep(x₀) Check
+> #### Deep Dive: The Final Link - The Deep Check
 >
-> The FRI proof establishes that the prover knows _some_ low-degree polynomial, let's call it $D_{\text{committed}}(x)$. The final, critical link is to ensure that this is the _correct_ Deep(x) constructed from the _original_ committed polynomials, [t] and [H]. This is achieved by performing a spot-check at a random **in-domain** point x₀, which is one of the query points from the FRI protocol.
+> The FRI proof establishes that the prover knows _some_ low-degree polynomial, let's call it $D_{\text{committed}}(x)$. The final, critical link is to ensure that this is the _correct_ $Deep(x)$ constructed from the _original_ committed polynomials, [t] and [H]. This is achieved by performing a spot-check at a random **in-domain** point x₀, which is one of the query points from the FRI protocol.
 >
 > 1.  **Prover's Role:** For the query point x₀, the prover provides:
 >
->     - The evaluation Deep(x₀) along with its FRI proof.
->     - The evaluations H(x₀) and t(x₀) along with their **Merkle proofs** tying them back to the original commitments [H] and [t].
+>     - The evaluation $Deep(x₀)$ along with its FRI proof.
+>     - The evaluations $H(x₀)$ and $t(x₀)$ along with their **Merkle proofs** tying them back to the original commitments [H] and [t].
 >
 > 2.  **Verifier's Role:** The verifier executes a crucial three-step verification:
->     - **Anchor the Ingredients:** The verifier first validates the Merkle proofs for H(x₀) and t(x₀). This step makes these values cryptographically trustworthy anchors to the initial state of the protocol.
->     - **Reconstruct Locally:** Using these trusted values H(x₀), t(x₀), along with the out-of-domain evaluations at z and the random challenges γ*i, the verifier calculates the value that Deep(x₀) \_should* have according to its public formula.
->     - **Compare and Conclude:** The verifier compares this locally computed value with the value of Deep(x₀) opened from the FRI proof. If they match, the loop is closed.
+>     - **Anchor the Ingredients:** The verifier first validates the Merkle proofs for $H(x₀)$ and $t(x₀)$. This step makes these values cryptographically trustworthy anchors to the initial state of the protocol.
+>     - **Reconstruct Locally:** Using these trusted values $H(x₀)$, $t(x₀)$, along with the out-of-domain evaluations at z and the random challenges γ*i, the verifier calculates the value that $Deep(x₀)$ \_should* have according to its public formula.
+>     - **Compare and Conclude:** The verifier compares this locally computed value with the value of $Deep(x₀)$ opened from the FRI proof. If they match, the loop is closed.
 >
 > This single check at x₀ proves that the polynomial demonstrated to be low-degree by FRI is the same one that correctly binds the out-of-domain evaluations to the initially committed trace.
 
