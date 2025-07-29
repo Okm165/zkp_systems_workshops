@@ -105,7 +105,7 @@ These two new constraints are bundled with the gate constraints into the final q
 
 ---
 
-## **Part 3: The Shift to Multivariate Systems - HyperPlonk (Expanded)**
+## **Part 3: The Shift to Multivariate Systems - HyperPlonk**
 
 HyperPlonk was designed to attack the theoretical $O(N \log N)$ complexity of the FFT. To achieve this, it reimagines the two pillars of Plonk's arithmetization: its **domain** and its **polynomial representation**.
 
