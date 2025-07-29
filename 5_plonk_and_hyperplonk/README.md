@@ -76,7 +76,7 @@ To solve this, we enhance the check with more randomness. The verifier provides 
 
 1.  **Unique Wire Identities:** Each of the $3n$ wire positions is given a unique identifier. In Plonk, these are represented by pre-computed **identity polynomials**, $S_{id,1}(X), S_{id,2}(X), S_{id,3}(X)$, where $S_{id,j}(\omega^i)$ gives the unique ID for the wire at gate $i$, column $j$.
 2.  **Permutation Polynomials:** The wiring permutation $\sigma$ is also encoded into polynomials, $S_{\sigma,1}(X), S_{\sigma,2}(X), S_{\sigma,3}(X)$. Here, $S_{\sigma,j}(\omega^i)$ gives the ID of the wire that $(j, i)$ is connected to.
-3.  **Randomized Binding:** The value at each wire is now combined with its identity using $\beta$ and $\gamma$. For a wire $(j, i) with value $w_j(\omega^i)$ and identity $S_{id,j}(\omega^i)$, its randomized value is $w_j(\omega^i) + \beta \cdot S_{id,j}(\omega^i) + \gamma$.
+3.  **Randomized Binding:** The value at each wire is now combined with its identity using $\beta$ and $\gamma$. For a wire $(j, i)$ with value $w_j(\omega^i)$ and identity $S_{id,j}(\omega^i)$, its randomized value is $w_j(\omega^i) + \beta \cdot S_{id,j}(\omega^i) + \gamma$.
 
 Now, the core assertion is that the multiset of randomized values is invariant when we swap the wire identities with the permuted wire identities. This leads to the **final grand product identity**:
 
@@ -136,7 +136,7 @@ Z(X\omega) \prod_{j=1}^{3}(w_j(X) + \beta S_{id,j}(X) + \gamma) - Z(X) \prod_{j=
 \end{align*}
 $$
 
-_Notice the terms are swapped compared to the fraction: the denominator from the recurrence is now multiplied by $Z(X\omega)$, and the numerator is multiplied by $Z(X)$._
+Notice the terms are swapped compared to the fraction: the denominator from the recurrence is now multiplied by $Z(X\omega)$, and the numerator is multiplied by $Z(X)$.
 
 These two new polynomial constraints, which must be divisible by $Z_H(X)$, now perfectly capture the logic of the accumulator. They are bundled with the gate constraints using random challenges into the final, single quotient polynomial $t(X)$. This elegant construction transforms a complex, global graph property (circuit wiring) into a set of local, algebraic polynomial constraints.
 
