@@ -12,7 +12,7 @@
 
 ## **Part 1: The Plonkish Arithmetization Paradigm**
 
-While Chapter 4 focused on the AIR framework, characterized by uniform transition constraints well-suited for state-machine-like computations, Plonk introduces a more flexible model designed for general arithmetic circuits. It provides a structured approach to arithmetization that has become the foundation for a vast ecosystem of ZKP systems.
+While Chapter 4 focused on the AIR framework, characterized by uniform transition constraints well-suited for state-machine-like computations, Plonk introduces a flexible model designed for general arithmetic circuits. It provides a structured approach to arithmetization that has become the foundation for a vast ecosystem of ZKP systems.
 
 ### **1.1 The Universal Gate Constraint**
 
@@ -44,7 +44,7 @@ Here, $Z_H(X) = X^n - 1$ is the **vanishing polynomial** of the domain $H$.
 
 ---
 
-## **Part 2: The Permutation Argument for Wire Consistency (Expanded)**
+## **Part 2: The Permutation Argument for Wire Consistency**
 
 The gate constraint identity from Part 1 is a necessary but insufficient condition for a valid proof. It confirms that each gate performs its operation correctly in isolation (e.g., this gate adds, that gate multiplies). However, it fails to enforce the connections _between_ the gates. This section provides a detailed, step-by-step deconstruction of Plonk's solution: the permutation argument.
 
